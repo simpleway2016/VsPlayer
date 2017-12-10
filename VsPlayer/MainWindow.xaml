@@ -8,6 +8,7 @@
         Title="MainWindow" Height="350" Width="525" Background="{x:Null}" WindowStyle="None" AllowsTransparency="True">
     <Border CornerRadius="3" BorderBrush="#000000" BorderThickness="1" Background="#202129" >
         <Grid>
+            <Grid x:Name="gridTitle" Background="Transparent" MouseDown="gridTitle_MouseDown" Height="28" VerticalAlignment="Top"></Grid>
             <TextBlock Foreground="#d1d1d3" FontSize="13" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,5,0,0" Text="VsPlayer"></TextBlock>
             <Grid x:Name="btnClose" Cursor="Hand" MouseDown="btnClose_MouseDown" Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,10,0">
                 <Image Source="images/close.png" Width="14" Height="14"></Image>
@@ -17,10 +18,23 @@
                     <Grid Margin="0,0,0,59">
                         <!--列表区-->
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="60*"></ColumnDefinition>
-                            <ColumnDefinition Width="40*"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                            <ColumnDefinition Width="200"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <ListBox Background="Transparent" BorderThickness="0" Margin="0,0,5,0"></ListBox>
+                        <!--播放列表-->
+                        <ListBox x:Name="lstPlayList" Drop="lstPlayList_Drop" AllowDrop="True" ItemsSource="{Binding PlayList}" Style="{StaticResource MyListBoxStyle}" Background="Transparent" BorderThickness="0" Margin="0,0,5,0">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Background="{Binding BgColor}" Foreground="{Binding FontColor}" Text="{Binding Text}"></TextBlock>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListBoxItem}">
+                                    <EventSetter Event="DragEnter" Handler="ListBoxItem_DragEnter"></EventSetter>
+                                    <EventSetter Event="DragLeave" Handler="ListBoxItem_DragLeave"></EventSetter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
                         <GridSplitter Width="5" Background="#36363a" VerticalAlignment="Stretch" HorizontalAlignment="Right"></GridSplitter>
                         <ListBox Background="Transparent" BorderThickness="0" Grid.Column="1"></ListBox>
                     </Grid>
@@ -63,7 +77,7 @@
                     </Border>
                 </Grid>
             </Border>
-            <StackPanel x:Name="ctrlResize" MouseDown="ctrlResize_MouseDown" MouseMove="ctrlResize_MouseMove" MouseUp="ctrlResize_MouseUp" Background="Transparent" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Height="15" Cursor="SizeNWSE"></StackPanel>
+            <StackPanel x:Name="ctrlResize" MouseDown="ctrlResize_MouseDown" Background="Transparent" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Height="15" Cursor="SizeNWSE"></StackPanel>
         </Grid>
     </Border>
 </Window>

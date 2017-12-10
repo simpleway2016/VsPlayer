@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -168,9 +169,18 @@ namespace VsPlayer
                 }
             }
         }
+
+        public ObservableCollection<PlayListItemModel> PlayList
+        {
+            get;
+            set;
+        }
+
         public MainModel()
         {
             this.PlayButtonImage = "images/play.png";
+            this.PlayList = new ObservableCollection<PlayListItemModel>();
+
             this.TotalSeconds = 138;
             this.CurrentPosition = 32;
         }

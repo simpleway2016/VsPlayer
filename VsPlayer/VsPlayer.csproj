@@ -68,6 +68,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Config.cs" />
+    <Compile Include="ExtendMethods.cs" />
     <Compile Include="MainModel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -75,6 +76,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PlayListItemModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
