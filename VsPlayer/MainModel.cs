@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace VsPlayer
 {
@@ -41,6 +42,7 @@ namespace VsPlayer
                             break;
                     }
                     OnPropertyChange("State");
+                    OnPropertyChange("PlayButtonImage");
                 }
             }
         }
@@ -51,6 +53,7 @@ namespace VsPlayer
             set;
         }
 
+       
         int _CurrentPosition;
         public int CurrentPosition
         {
@@ -137,6 +140,82 @@ namespace VsPlayer
 
         }
 
+        int _Volumn = -10000;
+        public int Volumn
+        {
+            get
+            {
+                return _Volumn;
+            }
+            set
+            {
+                if (value > 0)
+                    value = 0;
+                else if (value < -10000)
+                    value = -10000;
+
+                if (_Volumn != value)
+                {
+                    _Volumn = value;
+                    this.OnPropertyChange("Volumn");
+                }
+            }
+
+        }
+
+        Thickness _VolumnPointLocation = new Thickness(-3, 7, 0, 0);
+        public Thickness VolumnPointLocation
+        {
+            get
+            {
+                return _VolumnPointLocation;
+            }
+            set
+            {
+                if (_VolumnPointLocation.Left != value.Left)
+                {
+                    _VolumnPointLocation = value;
+                    this.OnPropertyChange("VolumnPointLocation");
+                }
+            }
+
+        }
+
+        static int[] volumes = new int[]{-10000,-6418,-6147,-6000,
+        -5892,-4826,-4647,-4540
+        -4477, -4162,-3876, -3614, -3500,
+        -3492,-3374,-3261,-3100,-3153,-3048,-2947,-2849,-2755,-2700,
+        -2663,-2575,-2520,-2489,-2406,-2325,-2280,-2246,-2170,-2095,-2050,
+        -2023,-1952,-1900, -1884,-1834, -1820, -1800,-1780, -1757,-1695,-1636,-1579,
+        -1521,-1500,-1464,-1436,-1420, -1408,-1353,-1299,-1246,-1195,-1144,
+        -1096,-1060, -1049,-1020,-1003,-957,-912,-868, -800, -774,-784, -760, -744,
+        -705,-667,-630,-610,-594,-570 ,-558,-525,-493,-462,-432,-403,
+        -375,-348,-322,-297,-285, -273,-250,-228,-207,-187,-176, -168,
+        -150,-102,-75,-19,-10,0,0};
+
+        int _VolumnBgWidth = 0;
+        public int VolumnBgWidth
+        {
+            get
+            {
+                return _VolumnBgWidth;
+            }
+            set
+            {
+                if (value > 77) value = 77;
+                else if (value < 0) value = 0;
+
+                if (_VolumnBgWidth != value)
+                {
+                    _VolumnBgWidth = value;
+                    this.VolumnPointLocation = new Thickness( value - 3 , 7,0,0);
+                    this.Volumn = volumes[(int)((volumes.Length - 1) * (value / 77.0))];
+                    this.OnPropertyChange("VolumnBgWidth");
+                }
+            }
+
+        }
+
         string _PlayingPercentText = "0*";
         public string PlayingPercentText
         {
@@ -181,10 +260,37 @@ namespace VsPlayer
             this.PlayButtonImage = "images/play.png";
             this.PlayList = new ObservableCollection<PlayListItemModel>();
 
-            this.TotalSeconds = 138;
-            this.CurrentPosition = 32;
         }
 
+        public void DownVolume()
+        {
+            try
+            {
+                var index = new List<int>(volumes).IndexOf(this.Volumn) - 1;
+                this.VolumnBgWidth = (index * 77) / (volumes.Length - 1);
+                this.Volumn = volumes[index];
+            }
+            catch
+            {
+
+            }
+        }
+        public void UpVolume()
+        {
+            try
+            {
+                var index = new List<int>(volumes).IndexOf(this.Volumn) + 1;
+                if (index < volumes.Length)
+                {
+                    this.VolumnBgWidth = (index * 77) / (volumes.Length - 1);
+                    this.Volumn = volumes[index];
+                }
+            }
+            catch
+            {
+
+            }
+        }
         void updatePlayingPercent()
         {
            var left =  (this.CurrentPosition*100) / this.TotalSeconds;

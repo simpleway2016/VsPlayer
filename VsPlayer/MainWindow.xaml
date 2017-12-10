@@ -30,8 +30,11 @@
                             </ListBox.ItemTemplate>
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="{x:Type ListBoxItem}">
+                                    
+                                    <Setter Property="IsSelected" Value="{Binding IsSelected}"></Setter>
                                     <EventSetter Event="DragEnter" Handler="ListBoxItem_DragEnter"></EventSetter>
                                     <EventSetter Event="DragLeave" Handler="ListBoxItem_DragLeave"></EventSetter>
+                                    <EventSetter Event="PreviewMouseDown" Handler="ListBoxItem_MouseDown"></EventSetter>
                                 </Style>
                             </ListBox.ItemContainerStyle>
                         </ListBox>
@@ -41,26 +44,31 @@
                     <Border VerticalAlignment="Bottom" Height="58" BorderBrush="#020203" BorderThickness="0,1,0,0">
                         <Grid>
                             <Border Height="25" VerticalAlignment="Top" BorderThickness="0,0,0,1" BorderBrush="#111216"></Border>
-                            <Grid Margin="5,11,115,0" Background="#1a1a20" Height="4" VerticalAlignment="Top">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="{Binding PlayingPercentText}"></ColumnDefinition>
-                                    <ColumnDefinition Width="{Binding PlayingPercentText2}"></ColumnDefinition>
-                                </Grid.ColumnDefinitions>
-                                <Grid Background="#fae100" Grid.Column="0"></Grid>
+                            <Grid x:Name="areaPlayPostion" Cursor="Hand" MouseDown="areaPlayPostion_MouseDown" MouseMove="areaPlayPostion_MouseMove" MouseUp="areaPlayPostion_MouseUp" Margin="5,7,115,0" Background="Transparent" Height="12" VerticalAlignment="Top">
+                                <Grid Background="#1a1a20" Height="4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="{Binding PlayingPercentText}"></ColumnDefinition>
+                                        <ColumnDefinition Width="{Binding PlayingPercentText2}"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid Background="#fae100" Grid.Column="0"></Grid>
+                                </Grid>
                             </Grid>
                             <Image Margin="0,4,92,0" Source="images/sound.png" Width="15" Height="15" VerticalAlignment="Top" HorizontalAlignment="Right"></Image>
                             <Grid Width="87" HorizontalAlignment="Right">
-                                <Rectangle Margin="0,10,10,0" Height="4" HorizontalAlignment="Left" VerticalAlignment="Top" Width="77" Fill="#1a1a20"></Rectangle>
-                                <Rectangle Margin="0,10,10,0" Height="4"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" Fill="#fae100"></Rectangle>
-                                <!-- -3 到 74 -->
-                                <Ellipse Margin="74,7,0,0" Width="9" Height="9" HorizontalAlignment="Left" VerticalAlignment="Top" Fill="White"></Ellipse>
+                                <Grid  x:Name="areaVolumn" Cursor="Hand" Background="Transparent" MouseDown="areaVolumn_MouseDown" MouseMove="areaVolumn_MouseMove" MouseUp="areaVolumn_MouseUp" Margin="0,6,10,0" Height="12" HorizontalAlignment="Left" VerticalAlignment="Top" Width="77" >
+                                    <Rectangle Height="4" Fill="#1a1a20"></Rectangle>
+                                </Grid>
+                                
+                                <Rectangle IsHitTestVisible="False" Margin="0,10,10,0" Height="4"  HorizontalAlignment="Left" VerticalAlignment="Top" Width="{Binding VolumnBgWidth}" Fill="#fae100"></Rectangle>
+                                <!-- -3 到 74   -3,7,0,0-->
+                                <Ellipse IsHitTestVisible="False" Margin="{Binding VolumnPointLocation}" Width="9" Height="9" HorizontalAlignment="Left" VerticalAlignment="Top" Fill="White"></Ellipse>
                             </Grid>
                             <Grid VerticalAlignment="Bottom" Height="32">
                                 <StackPanel Orientation="Horizontal">
-                                    <Grid Cursor="Hand" Width="20" Height="20" HorizontalAlignment="Left" Margin="8,6,0,6">
+                                    <Grid x:Name="btnPlay" MouseDown="btnPlay_MouseDown" Cursor="Hand" Width="20" Height="20" HorizontalAlignment="Left" Margin="8,6,0,6">
                                         <Image Source="{Binding PlayButtonImage}" Width="11" Height="12"></Image>
                                     </Grid>
-                                    <Grid Cursor="Hand" Width="20" Height="20" HorizontalAlignment="Left" Margin="5,6,0,6">
+                                    <Grid x:Name="btnStop" MouseDown="btnStop_MouseDown" Cursor="Hand" Width="20" Height="20" HorizontalAlignment="Left" Margin="5,6,0,6">
                                         <Rectangle Fill="#edeff4" Width="8" Height="8"></Rectangle>
                                     </Grid>
                                     <Grid Margin="10,0,0,0" Width="51">
@@ -71,7 +79,7 @@
                                         <TextBlock FontSize="12" Text="{Binding TotalSecondsText}" VerticalAlignment="Center" Foreground="#7d808e"></TextBlock>
                                     </Grid>
                                 </StackPanel>
-                                
+                                <Image x:Name="btnSetting" SnapsToDevicePixels="True" MouseDown="btnSetting_MouseDown" Width="16" Cursor="Hand" Height="16" Source="images/screen.png" HorizontalAlignment="Right" Margin="0,8,6,7"></Image>
                             </Grid>
                         </Grid>
                     </Border>

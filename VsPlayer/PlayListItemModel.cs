@@ -57,6 +57,8 @@ namespace VsPlayer
         {
             get
             {
+                if (this.Continer == null)
+                    return null;
                 return $"{(this.Continer.IndexOf(this) + 1)}.{this.Name}";
             }
         }
@@ -78,7 +80,28 @@ namespace VsPlayer
             }
         }
 
-        ObservableCollection<PlayListItemModel> Continer;
+        bool _IsSelected;
+        public bool IsSelected
+        {
+            get
+            {
+                return _IsSelected;
+            }
+            set
+            {
+                if (_IsSelected != value)
+                {
+                    _IsSelected = value;
+                    OnPropertyChange("IsSelected");
+                }
+            }
+        }
+        [Newtonsoft.Json.JsonIgnore]
+        public ObservableCollection<PlayListItemModel> Continer;
+        public PlayListItemModel()
+        {
+
+        }
         public PlayListItemModel(ObservableCollection<PlayListItemModel> container)
         {
             this.Continer = container;

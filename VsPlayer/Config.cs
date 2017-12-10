@@ -10,6 +10,8 @@ namespace VsPlayer
     {
         public double? WindowWidth;
         public double? WindowHeight;
+        public double? VolumnBgWidth;
+        public List<PlayListItemModel> PlayList = new List<PlayListItemModel>();
         public static Config GetInstance()
         {
             try
