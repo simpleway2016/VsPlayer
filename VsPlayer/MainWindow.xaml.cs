@@ -536,5 +536,53 @@ namespace VsPlayer
             PlayListItemModel model = ctrl.DataContext as PlayListItemModel;
             model.Continer.Remove(model);
         }
+
+        private void ClearPlayList_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show(this, "确定清空播放列表吗？", "", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+            {
+                this.DataModel.PlayList.Clear();
+            }
+        }
+
+        private void AddMovie_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            using (System.Windows.Forms.OpenFileDialog fd = new System.Windows.Forms.OpenFileDialog())
+            {
+                fd.Multiselect = true;
+                if(fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    foreach (var filename in fd.FileNames)
+                    {
+                        var model = new PlayListItemModel(this.DataModel.PlayList)
+                        {
+                            FilePath = filename
+                        };
+
+                        this.DataModel.PlayList.Add(model);
+                    }
+                }
+            }
+        }
+
+        private void AddPic_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            using (System.Windows.Forms.OpenFileDialog fd = new System.Windows.Forms.OpenFileDialog())
+            {
+                fd.Multiselect = true;
+                if (fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    foreach (var filename in fd.FileNames)
+                    {
+                        var model = new PlayListItemModel(this.DataModel.BackgroundList)
+                        {
+                            FilePath = filename
+                        };
+
+                        this.DataModel.BackgroundList.Add(model);
+                    }
+                }
+            }
+        }
     }
 }

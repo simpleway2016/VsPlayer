@@ -23,6 +23,12 @@
                         </Grid.ColumnDefinitions>
                         <!--播放列表-->
                         <ListBox x:Name="lstPlayList" Drop="lstPlayList_Drop" AllowDrop="True" ItemsSource="{Binding PlayList}" Style="{StaticResource MyListBoxStyle}" Background="Transparent" BorderThickness="0" Margin="0,0,5,0">
+                            <ListBox.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="添加媒体文件..." Click="AddMovie_MenuItem_Click"></MenuItem>
+                                    <MenuItem Header="清空播放列表" Click="ClearPlayList_MenuItem_Click"></MenuItem>
+                                </ContextMenu>
+                            </ListBox.ContextMenu>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Width="{Binding Path=DataContext.PlayerListWidth,RelativeSource={  RelativeSource  Mode=FindAncestor, AncestorType={x:Type ListBox}}}">
@@ -43,6 +49,11 @@
                         </ListBox>
                         <GridSplitter Width="5" Background="#36363a" VerticalAlignment="Stretch" HorizontalAlignment="Right"></GridSplitter>
                         <ListBox x:Name="lstPicture" AllowDrop="True" ItemsSource="{Binding BackgroundList}" Drop="lstPicture_Drop" SelectionChanged="lstPicture_SelectionChanged" Background="Transparent" BorderThickness="0" Grid.Column="1">
+                            <ListBox.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="添加背景文件..." Click="AddPic_MenuItem_Click"></MenuItem>
+                                </ContextMenu>
+                            </ListBox.ContextMenu>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Width="{Binding Path=DataContext.BackgroundListWidth,RelativeSource={  RelativeSource  Mode=FindAncestor, AncestorType={x:Type ListBox}}}">
