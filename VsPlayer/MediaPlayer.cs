@@ -61,6 +61,7 @@ namespace VsPlayer
         {
             DSFilter lavvideo = new DSFilter(MediaFactory.GetLAVVideo() as IBaseFilter); //new ffdshowAudioDec() as IBaseFilter;
             _mediaBuilder.AddFilter(lavvideo, "lav video");
+            MediaFactory.EnableLavHardwareDecode((DirectShowLib.IBaseFilter)lavvideo.Value);
             HRESULT hr = pin.Connect(lavvideo.InputPin);
             hr.Throw();
             return lavvideo;

@@ -107,7 +107,7 @@ namespace VsPlayer
             this.Continer = container;
         }
 
-        void OnPropertyChange(string name)
+        public void OnPropertyChange(string name)
         {
             if (PropertyChanged != null)
             {

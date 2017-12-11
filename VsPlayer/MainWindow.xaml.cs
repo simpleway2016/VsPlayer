@@ -77,6 +77,8 @@ namespace VsPlayer
             _videoForm.Player.SetVolumn(this.DataModel.Volumn);
             new Thread(updatePosition).Start();
 
+            chkStretchMode.IsChecked = this.Config.IsStretchMode;
+
             _keyHook = new WayControls.Windows.Hook.KeyBordHook();
             _keyHook.OnKeyDownEvent += _keyHook_OnKeyDownEvent;
             _keyHook.Start((int)WayControls.Windows.API.GetCurrentThreadId());
@@ -123,6 +125,7 @@ namespace VsPlayer
         {
             Config.WindowWidth = this.Width;
             Config.WindowHeight = this.Height;
+            this.Config.IsStretchMode = (chkStretchMode.IsChecked == true);
             Config.VolumnBgWidth = DataModel.VolumnBgWidth;
             Config.PlayList.AddRange(this.DataModel.PlayList);
             Config.BackgroundList.AddRange(this.DataModel.BackgroundList);
@@ -185,7 +188,9 @@ namespace VsPlayer
             else
             {
                 var model = e.Data.GetData(typeof(PlayListItemModel)) as PlayListItemModel;
-                if(model != null && listboxItem != null && listboxItem.DataContext != model)
+                if (model.Continer == this.DataModel.BackgroundList)
+                    return;
+                if (model != null && listboxItem != null && listboxItem.DataContext != model)
                 {
                     //移动位置
                     var targetModel = listboxItem.DataContext as PlayListItemModel;
@@ -199,11 +204,16 @@ namespace VsPlayer
                     this.DataModel.PlayList.Remove(model);
                     this.DataModel.PlayList.Add( model);
                 }
+                foreach(var data in this.DataModel.PlayList)
+                {
+                    data.OnPropertyChange("Text");
+                }
             }
 
         }
         private void ListBoxItem_MouseDown(object sender, MouseButtonEventArgs e)
         {
+
             if(e.ClickCount == 2)
             {
                 var curFileObj = this.DataModel.PlayList.FirstOrDefault(m => m.IsSelected);
@@ -221,6 +231,7 @@ namespace VsPlayer
             }
             ListBoxItem listboxitem = sender as ListBoxItem;
             var model = listboxitem.DataContext as PlayListItemModel;
+            model.IsSelected = true;
             DragDrop.DoDragDrop(listboxitem, model, DragDropEffects.Move);
         }
         private void ListBoxItem_DragEnter(object sender, DragEventArgs e)
@@ -384,6 +395,7 @@ namespace VsPlayer
             menu.IsOpen = true;
         }
 
+        System.Drawing.Size _originalSize = new System.Drawing.Size(500,300);
         private void ScreenItem_Click(object sender, RoutedEventArgs e)
         {
             MenuItem item = sender as MenuItem;
@@ -391,10 +403,17 @@ namespace VsPlayer
             if( screen == null )
             {
                 //主屏幕
+                _videoForm.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+                _videoForm.Location = new System.Drawing.Point(System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Left , System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Top);
+                _videoForm.ClientSize = _originalSize;
             }
             else
             {
                 //
+                _originalSize = _videoForm.ClientSize;
+                _videoForm.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+                _videoForm.Location = new System.Drawing.Point(screen.Bounds.Left,screen.Bounds.Top);                
+                _videoForm.ClientSize = screen.Bounds.Size;
             }
         }
 
@@ -432,41 +451,74 @@ namespace VsPlayer
                     filenames[i] = arr.GetValue(i).ToString();
                 }
                 filenames = filenames.OrderBy(m => m).ToArray();
-                int index = this.DataModel.PlayList.Count;
+                int index = this.DataModel.BackgroundList.Count;
                 if (listboxItem != null)
                 {
                     var targetModel = listboxItem.DataContext as PlayListItemModel;
                     targetModel.BgColor = null;
-                    index = this.DataModel.PlayList.IndexOf(targetModel);
+                    index = this.DataModel.BackgroundList.IndexOf(targetModel);
                 }
                 foreach (var filename in filenames)
                 {
-                    var model = new PlayListItemModel(this.DataModel.PlayList)
+                    var model = new PlayListItemModel(this.DataModel.BackgroundList)
                     {
                         FilePath = filename
                     };
 
-                    this.DataModel.PlayList.Insert(index, model);
+                    this.DataModel.BackgroundList.Insert(index, model);
                     index++;
                 }
             }
             else
             {
                 var model = e.Data.GetData(typeof(PlayListItemModel)) as PlayListItemModel;
+                if (model.Continer == this.DataModel.PlayList)
+                    return;
                 if (model != null && listboxItem != null && listboxItem.DataContext != model)
                 {
                     //移动位置
                     var targetModel = listboxItem.DataContext as PlayListItemModel;
                     targetModel.BgColor = null;
-                    this.DataModel.PlayList.Remove(model);
-                    var index = this.DataModel.PlayList.IndexOf(targetModel);
-                    this.DataModel.PlayList.Insert(index, model);
+                    this.DataModel.BackgroundList.Remove(model);
+                    var index = this.DataModel.BackgroundList.IndexOf(targetModel);
+                    this.DataModel.BackgroundList.Insert(index, model);
                 }
                 else if (model != null && listboxItem == null)
                 {
-                    this.DataModel.PlayList.Remove(model);
-                    this.DataModel.PlayList.Add(model);
+                    this.DataModel.BackgroundList.Remove(model);
+                    this.DataModel.BackgroundList.Add(model);
                 }
+                foreach (var data in this.DataModel.BackgroundList)
+                {
+                    data.OnPropertyChange("Text");
+                }
+            }
+        }
+
+        private void lstPicture_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (lstPicture.SelectedIndex < 0)
+                return;
+           var model =  lstPicture.SelectedItem as PlayListItemModel;
+            try
+            {
+                _videoForm.pictureBox.Image = System.Drawing.Bitmap.FromFile(model.FilePath);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(this, ex.Message);
+            }
+        }
+
+        private void chkStretchMode_Checked(object sender, RoutedEventArgs e)
+        {
+            if(chkStretchMode.IsChecked == true)
+            {
+                _videoForm.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            }
+            else
+            {
+                _videoForm.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             }
         }
     }

@@ -11,6 +11,7 @@ namespace VsPlayer
         public double? WindowWidth;
         public double? WindowHeight;
         public double? VolumnBgWidth;
+        public bool IsStretchMode;
         public List<PlayListItemModel> PlayList = new List<PlayListItemModel>();
         public List<PlayListItemModel> BackgroundList = new List<PlayListItemModel>();
         public static Config GetInstance()

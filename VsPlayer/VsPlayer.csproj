@@ -34,11 +34,13 @@
   </PropertyGroup>
   <PropertyGroup />
   <ItemGroup>
-    <Reference Include="BaseClassesNET">
-      <HintPath>E:\KCode\视频服务\NETBaseClasses\Output\bin\Release\BaseClassesNET.dll</HintPath>
+    <Reference Include="BaseClassesNET, Version=1.0.0.6, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\bin\BaseClassesNET.dll</HintPath>
     </Reference>
-    <Reference Include="DirectShowLib">
-      <HintPath>E:\KCode\视频服务\VideoConnectLib\bin\Release\DirectShowLib.dll</HintPath>
+    <Reference Include="DirectShowLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\bin\DirectShowLib.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -56,8 +58,9 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
-    <Reference Include="VideoConnectLib">
-      <HintPath>E:\KCode\视频服务\VideoConnectLib\bin\Release\VideoConnectLib.dll</HintPath>
+    <Reference Include="VideoConnectLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\bin\VideoConnectLib.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />

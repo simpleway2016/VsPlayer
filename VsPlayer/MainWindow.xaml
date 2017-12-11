@@ -39,7 +39,22 @@
                             </ListBox.ItemContainerStyle>
                         </ListBox>
                         <GridSplitter Width="5" Background="#36363a" VerticalAlignment="Stretch" HorizontalAlignment="Right"></GridSplitter>
-                        <ListBox x:Name="lstPicture" Drop="lstPicture_Drop" Background="Transparent" BorderThickness="0" Grid.Column="1"></ListBox>
+                        <ListBox x:Name="lstPicture" AllowDrop="True" ItemsSource="{Binding BackgroundList}" Drop="lstPicture_Drop" SelectionChanged="lstPicture_SelectionChanged" Background="Transparent" BorderThickness="0" Grid.Column="1">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Background="{Binding BgColor}" Foreground="{Binding FontColor}" Text="{Binding Text}"></TextBlock>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListBoxItem}">
+
+                                    <Setter Property="IsSelected" Value="{Binding IsSelected}"></Setter>
+                                    <EventSetter Event="DragEnter" Handler="ListBoxItem_DragEnter"></EventSetter>
+                                    <EventSetter Event="DragLeave" Handler="ListBoxItem_DragLeave"></EventSetter>
+                                    <EventSetter Event="PreviewMouseDown" Handler="ListBoxItem_MouseDown"></EventSetter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
                     </Grid>
                     <Border VerticalAlignment="Bottom" Height="58" BorderBrush="#020203" BorderThickness="0,1,0,0">
                         <Grid>
@@ -78,7 +93,9 @@
                                     <Grid Margin="3,0,0,0" Width="51">
                                         <TextBlock FontSize="12" Text="{Binding TotalSecondsText}" VerticalAlignment="Center" Foreground="#7d808e"></TextBlock>
                                     </Grid>
+                                    
                                 </StackPanel>
+                                <CheckBox x:Name="chkStretchMode" Content="拉伸背景图" Checked="chkStretchMode_Checked" Unchecked="chkStretchMode_Checked" HorizontalAlignment="Right" Foreground="#ccc" Margin="0,8,30,7"/>
                                 <Image x:Name="btnSetting" SnapsToDevicePixels="True" MouseDown="btnSetting_MouseDown" Width="16" Cursor="Hand" Height="16" Source="images/screen.png" HorizontalAlignment="Right" Margin="0,8,6,7"></Image>
                             </Grid>
                         </Grid>

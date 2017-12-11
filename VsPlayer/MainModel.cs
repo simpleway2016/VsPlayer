@@ -263,7 +263,7 @@ namespace VsPlayer
         {
             this.PlayButtonImage = "images/play.png";
             this.PlayList = new ObservableCollection<PlayListItemModel>();
-
+            this.BackgroundList = new ObservableCollection<PlayListItemModel>();
         }
 
         public void DownVolume()
