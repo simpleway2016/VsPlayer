@@ -53,8 +53,14 @@ namespace VsPlayer
                 f.Continer = DataModel.PlayList;
                 DataModel.PlayList.Add(f);
             }
+            foreach (var f in Config.BackgroundList)
+            {
+                f.Continer = DataModel.BackgroundList;
+                DataModel.BackgroundList.Add(f);
+            }
             DataModel.VolumnBgWidth = (int)(Config.VolumnBgWidth??77);
             this.Config.PlayList.Clear();
+            this.Config.BackgroundList.Clear();
             this.DataContext = DataModel;
 
             _videoForm = new VideoForm();
@@ -119,6 +125,7 @@ namespace VsPlayer
             Config.WindowHeight = this.Height;
             Config.VolumnBgWidth = DataModel.VolumnBgWidth;
             Config.PlayList.AddRange(this.DataModel.PlayList);
+            Config.BackgroundList.AddRange(this.DataModel.BackgroundList);
             Config.Save();
             System.Diagnostics.Process.GetCurrentProcess().Kill();
             base.OnClosing(e);

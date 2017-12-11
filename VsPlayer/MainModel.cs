@@ -254,7 +254,11 @@ namespace VsPlayer
             get;
             set;
         }
-
+        public ObservableCollection<PlayListItemModel> BackgroundList
+        {
+            get;
+            set;
+        }
         public MainModel()
         {
             this.PlayButtonImage = "images/play.png";
