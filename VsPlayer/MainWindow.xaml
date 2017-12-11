@@ -25,7 +25,10 @@
                         <ListBox x:Name="lstPlayList" Drop="lstPlayList_Drop" AllowDrop="True" ItemsSource="{Binding PlayList}" Style="{StaticResource MyListBoxStyle}" Background="Transparent" BorderThickness="0" Margin="0,0,5,0">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Background="{Binding BgColor}" Foreground="{Binding FontColor}" Text="{Binding Text}"></TextBlock>
+                                    <Grid Width="{Binding Path=DataContext.PlayerListWidth,RelativeSource={  RelativeSource  Mode=FindAncestor, AncestorType={x:Type ListBox}}}">
+                                        <TextBlock HorizontalAlignment="Left" Background="{Binding BgColor}" Foreground="{Binding FontColor}" Text="{Binding Text}"></TextBlock>
+                                        <TextBlock Text="X" x:Name="btnDelItem" ToolTip="删除" MouseDown="btnDelItem_MouseDown" Cursor="Hand" Foreground="#999" HorizontalAlignment="Right" Margin="0,0,5,0"></TextBlock>
+                                    </Grid>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                             <ListBox.ItemContainerStyle>
@@ -42,7 +45,10 @@
                         <ListBox x:Name="lstPicture" AllowDrop="True" ItemsSource="{Binding BackgroundList}" Drop="lstPicture_Drop" SelectionChanged="lstPicture_SelectionChanged" Background="Transparent" BorderThickness="0" Grid.Column="1">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock Background="{Binding BgColor}" Foreground="{Binding FontColor}" Text="{Binding Text}"></TextBlock>
+                                    <Grid Width="{Binding Path=DataContext.BackgroundListWidth,RelativeSource={  RelativeSource  Mode=FindAncestor, AncestorType={x:Type ListBox}}}">
+                                        <TextBlock HorizontalAlignment="Left" Background="{Binding BgColor}" Foreground="{Binding FontColor}" Text="{Binding Text}"></TextBlock>
+                                        <TextBlock Text="X" x:Name="btnDelItem" ToolTip="删除" MouseDown="btnDelItem_MouseDown" Cursor="Hand" Foreground="#999" HorizontalAlignment="Right" Margin="0,0,5,0"></TextBlock>
+                                    </Grid>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                             <ListBox.ItemContainerStyle>

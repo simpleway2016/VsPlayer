@@ -232,6 +232,42 @@ namespace VsPlayer
                 }
             }
         }
+
+        //
+        double _PlayerListWidth = 0;
+        public double PlayerListWidth
+        {
+            get
+            {
+                return _PlayerListWidth;
+            }
+            set
+            {
+                if (_PlayerListWidth != value)
+                {
+                    _PlayerListWidth = value;
+                    this.OnPropertyChange("PlayerListWidth");
+                }
+            }
+        }
+
+        double _BackgroundListWidth = 0;
+        public double BackgroundListWidth
+        {
+            get
+            {
+                return _BackgroundListWidth;
+            }
+            set
+            {
+                if (_BackgroundListWidth != value)
+                {
+                    _BackgroundListWidth = value;
+                    this.OnPropertyChange("BackgroundListWidth");
+                }
+            }
+        }
+
         string _PlayingPercentText2 = "100*";
         public string PlayingPercentText2
         {

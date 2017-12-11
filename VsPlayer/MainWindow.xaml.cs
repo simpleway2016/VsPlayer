@@ -82,8 +82,16 @@ namespace VsPlayer
             _keyHook = new WayControls.Windows.Hook.KeyBordHook();
             _keyHook.OnKeyDownEvent += _keyHook_OnKeyDownEvent;
             _keyHook.Start((int)WayControls.Windows.API.GetCurrentThreadId());
-        }
 
+            OnRenderSizeChanged(null);
+        }
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            if(sizeInfo != null)
+                base.OnRenderSizeChanged(sizeInfo);
+            this.DataModel.PlayerListWidth = lstPlayList.ActualWidth - 10;
+            this.DataModel.BackgroundListWidth = lstPicture.ActualWidth - 15;
+        }
         private void _keyHook_OnKeyDownEvent(object sender, WayControls.Windows.Hook.WayKeyEventArgs e)
         {
            if(e.KeyCode == System.Windows.Forms.Keys.Up)
@@ -520,6 +528,13 @@ namespace VsPlayer
             {
                 _videoForm.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             }
+        }
+
+        private void btnDelItem_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            FrameworkElement ctrl = sender as FrameworkElement;
+            PlayListItemModel model = ctrl.DataContext as PlayListItemModel;
+            model.Continer.Remove(model);
         }
     }
 }
