@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup />
+  <PropertyGroup>
+    <ApplicationIcon>ico.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="BaseClassesNET, Version=1.0.0.6, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
@@ -142,6 +145,16 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="images\screen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\clear.png" />
+    <Resource Include="images\media.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="images\picture.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="ico.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
