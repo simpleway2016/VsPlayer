@@ -391,6 +391,76 @@ namespace VsPlayer
             }
         }
 
-       
+        char[] titleArr = new char[] {'i','c','k','y','\'' };
+        private void txtTitle_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if(txtTitle.Text == "VsPlayer")
+            {
+                txtTitle.Text = "VsPlayer ";
+                Task.Run(()=> {
+                    StringBuilder buffer = new StringBuilder();
+                    for(int i = 0; i < titleArr.Length; i ++)
+                    {
+                       
+                        buffer.Append(titleArr[i]);
+                        this.Dispatcher.Invoke(()=> {
+                            txtTitle.Text = $"V{buffer}s Player";
+                        });
+                        Thread.Sleep(100);
+                    }
+                });
+            }
+        }
+
+        private void lstPicture_Drop(object sender, DragEventArgs e)
+        {
+            var listboxItem = ((FrameworkElement)e.OriginalSource).GetParentByName<ListBoxItem>(null);
+
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var arr = ((System.Array)e.Data.GetData(DataFormats.FileDrop));
+                var filenames = new string[arr.Length];
+                for (int i = 0; i < filenames.Length; i++)
+                {
+                    filenames[i] = arr.GetValue(i).ToString();
+                }
+                filenames = filenames.OrderBy(m => m).ToArray();
+                int index = this.DataModel.PlayList.Count;
+                if (listboxItem != null)
+                {
+                    var targetModel = listboxItem.DataContext as PlayListItemModel;
+                    targetModel.BgColor = null;
+                    index = this.DataModel.PlayList.IndexOf(targetModel);
+                }
+                foreach (var filename in filenames)
+                {
+                    var model = new PlayListItemModel(this.DataModel.PlayList)
+                    {
+                        FilePath = filename
+                    };
+
+                    this.DataModel.PlayList.Insert(index, model);
+                    index++;
+                }
+            }
+            else
+            {
+                var model = e.Data.GetData(typeof(PlayListItemModel)) as PlayListItemModel;
+                if (model != null && listboxItem != null && listboxItem.DataContext != model)
+                {
+                    //移动位置
+                    var targetModel = listboxItem.DataContext as PlayListItemModel;
+                    targetModel.BgColor = null;
+                    this.DataModel.PlayList.Remove(model);
+                    var index = this.DataModel.PlayList.IndexOf(targetModel);
+                    this.DataModel.PlayList.Insert(index, model);
+                }
+                else if (model != null && listboxItem == null)
+                {
+                    this.DataModel.PlayList.Remove(model);
+                    this.DataModel.PlayList.Add(model);
+                }
+            }
+        }
     }
 }

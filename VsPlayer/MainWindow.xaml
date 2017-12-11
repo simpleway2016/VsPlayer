@@ -9,7 +9,7 @@
     <Border CornerRadius="3" BorderBrush="#000000" BorderThickness="1" Background="#202129" >
         <Grid>
             <Grid x:Name="gridTitle" Background="Transparent" MouseDown="gridTitle_MouseDown" Height="28" VerticalAlignment="Top"></Grid>
-            <TextBlock Foreground="#d1d1d3" FontSize="13" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,5,0,0" Text="VsPlayer"></TextBlock>
+            <TextBlock x:Name="txtTitle" MouseDown="txtTitle_MouseDown" Foreground="#d1d1d3" FontSize="13" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,5,0,0" Text="VsPlayer"></TextBlock>
             <Grid x:Name="btnClose" Cursor="Hand" MouseDown="btnClose_MouseDown" Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,10,0">
                 <Image Source="images/close.png" Width="14" Height="14"></Image>
             </Grid>
@@ -39,7 +39,7 @@
                             </ListBox.ItemContainerStyle>
                         </ListBox>
                         <GridSplitter Width="5" Background="#36363a" VerticalAlignment="Stretch" HorizontalAlignment="Right"></GridSplitter>
-                        <ListBox Background="Transparent" BorderThickness="0" Grid.Column="1"></ListBox>
+                        <ListBox x:Name="lstPicture" Drop="lstPicture_Drop" Background="Transparent" BorderThickness="0" Grid.Column="1"></ListBox>
                     </Grid>
                     <Border VerticalAlignment="Bottom" Height="58" BorderBrush="#020203" BorderThickness="0,1,0,0">
                         <Grid>
