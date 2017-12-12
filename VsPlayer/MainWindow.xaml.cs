@@ -134,7 +134,10 @@ namespace VsPlayer
                     else
                     {
                         historyitem.AudioStreamIndex = _videoForm.Player.CurrentAudioStreamIndex;
-                        historyitem.Volume = _videoForm.Player.GetVolume();
+                        if (this.DataModel.IsSetLastTimeVolume)
+                        {
+                            historyitem.Volume = _videoForm.Player.GetVolume();
+                        }
                     }
                     if (otherThreadSave && this.DataModel.IsSetLastTimeVolume)
                     {
