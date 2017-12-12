@@ -95,6 +95,25 @@ namespace VsPlayer
             }
 
         }
+
+        bool _IsSetLastTimeVolume;
+        public bool IsSetLastTimeVolume
+        {
+            get
+            {
+                return _IsSetLastTimeVolume;
+            }
+            set
+            {
+                if (_IsSetLastTimeVolume != value)
+                {
+                    _IsSetLastTimeVolume = value;                   
+                    this.OnPropertyChange("IsSetLastTimeVolume");
+                }
+            }
+
+        }
+
         int _TotalSeconds;
         public int TotalSeconds
         {

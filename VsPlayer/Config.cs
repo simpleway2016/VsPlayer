@@ -12,6 +12,7 @@ namespace VsPlayer
         public double? WindowHeight;
         public double? VolumnBgWidth;
         public bool IsStretchMode;
+        public bool IsSetLastTimeVolume;
         public List<PlayListItemModel> PlayList = new List<PlayListItemModel>();
         public List<PlayListItemModel> BackgroundList = new List<PlayListItemModel>();
         public static Config GetInstance()

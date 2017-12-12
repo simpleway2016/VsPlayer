@@ -24,7 +24,7 @@ namespace VsPlayer
     /// </summary>
     public partial class MainWindow : Window
     {
-        
+
 
         [DllImport("user32.dll")]
         public static extern bool SendMessage(IntPtr hwnd, int wMsg, int wParam, int lParam);
@@ -41,17 +41,17 @@ namespace VsPlayer
         public MainWindow()
         {
             InitializeComponent();
-          
+
             this.Config = Config.GetInstance();
 
             try
             {
                 string json = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "history.json", System.Text.Encoding.UTF8);
-                HistoryItems = new List<HistoryItem>( Newtonsoft.Json.JsonConvert.DeserializeObject<HistoryItem[]>(json));
+                HistoryItems = new List<HistoryItem>(Newtonsoft.Json.JsonConvert.DeserializeObject<HistoryItem[]>(json));
             }
             catch
             {
-               
+
             }
 
 
@@ -71,13 +71,15 @@ namespace VsPlayer
                 f.Continer = DataModel.BackgroundList;
                 DataModel.BackgroundList.Add(f);
             }
-            DataModel.VolumnBgWidth = (int)(Config.VolumnBgWidth??77);
+            DataModel.VolumnBgWidth = (int)(Config.VolumnBgWidth ?? 77);
+            this.DataModel.IsSetLastTimeVolume = Config.IsSetLastTimeVolume;
             this.Config.PlayList.Clear();
             this.Config.BackgroundList.Clear();
             this.DataContext = DataModel;
 
             _videoForm = new VideoForm();
-            _videoForm.Player.PlayCompleted += (s, e) => {
+            _videoForm.Player.PlayCompleted += (s, e) =>
+            {
                 _videoForm.Player.Visible = false;
                 this.DataModel.State = PlayState.Stopped;
                 rememberHistory();
@@ -92,7 +94,10 @@ namespace VsPlayer
             _videoForm.Player.SetVolume(this.DataModel.Volumn);
             new Thread(updatePosition).Start();
 
-            chkStretchMode.IsChecked = this.Config.IsStretchMode;
+            if (this.Config.IsStretchMode)
+            {
+                chkStretchMode_MenuItem_Click(null, null);
+            }
 
             _keyHook = new WayControls.Windows.Hook.KeyBordHook();
             _keyHook.OnKeyDownEvent += _keyHook_OnKeyDownEvent;
@@ -104,6 +109,7 @@ namespace VsPlayer
         PlayListItemModel _lastPlayingModel = null;
         void rememberHistory(bool otherThreadSave = true)
         {
+
             var playingModel = _lastPlayingModel;
             if (playingModel != null)
             {
@@ -119,7 +125,7 @@ namespace VsPlayer
                             FileLength = filelen,
                             FileName = filename,
                             AudioStreamIndex = _videoForm.Player.CurrentAudioStreamIndex,
-                            Volume = _videoForm.Player.GetVolume()
+                            Volume = this.DataModel.IsSetLastTimeVolume ? new int?(_videoForm.Player.GetVolume()) : null,
                         };
                         HistoryItems.Add(historyitem);
                         if (HistoryItems.Count > 200)
@@ -130,7 +136,7 @@ namespace VsPlayer
                         historyitem.AudioStreamIndex = _videoForm.Player.CurrentAudioStreamIndex;
                         historyitem.Volume = _videoForm.Player.GetVolume();
                     }
-                    if (otherThreadSave)
+                    if (otherThreadSave && this.DataModel.IsSetLastTimeVolume)
                     {
                         Task.Run(() =>
                         {
@@ -164,14 +170,14 @@ namespace VsPlayer
         }
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
-            if(sizeInfo != null)
+            if (sizeInfo != null)
                 base.OnRenderSizeChanged(sizeInfo);
             this.DataModel.PlayerListWidth = lstPlayList.ActualWidth - 10;
             this.DataModel.BackgroundListWidth = lstPicture.ActualWidth - 15;
         }
         private void _keyHook_OnKeyDownEvent(object sender, WayControls.Windows.Hook.WayKeyEventArgs e)
         {
-           if(e.KeyCode == System.Windows.Forms.Keys.Up)
+            if (e.KeyCode == System.Windows.Forms.Keys.Up)
             {
                 e.CallNextHookEx = false;
                 this.DataModel.UpVolume();
@@ -192,7 +198,8 @@ namespace VsPlayer
                 Thread.Sleep(1000);
                 if (this.DataModel.State == PlayState.Playing)
                 {
-                    _videoForm.Invoke(new ThreadStart(()=> {
+                    _videoForm.Invoke(new ThreadStart(() =>
+                    {
                         int seconds = (int)_videoForm.Player.GetCurrentPosition();
                         int total = (int)_videoForm.Player.GetDuration();
                         this.DataModel.TotalSeconds = total;
@@ -201,7 +208,7 @@ namespace VsPlayer
                             this.DataModel.CurrentPosition = seconds;
                         }
                     }));
-                   
+
                 }
             }
         }
@@ -210,7 +217,8 @@ namespace VsPlayer
         {
             Config.WindowWidth = this.Width;
             Config.WindowHeight = this.Height;
-            this.Config.IsStretchMode = (chkStretchMode.IsChecked == true);
+            this.Config.IsSetLastTimeVolume = this.DataModel.IsSetLastTimeVolume;
+            this.Config.IsStretchMode = (chkStretchMode_MenuItem.IsChecked == true);
             Config.VolumnBgWidth = DataModel.VolumnBgWidth;
             Config.PlayList.AddRange(this.DataModel.PlayList);
             Config.BackgroundList.AddRange(this.DataModel.BackgroundList);
@@ -253,7 +261,7 @@ namespace VsPlayer
             {
                 var arr = ((System.Array)e.Data.GetData(DataFormats.FileDrop));
                 var filenames = new string[arr.Length];
-                for(int i = 0; i < filenames.Length; i ++)
+                for (int i = 0; i < filenames.Length; i++)
                 {
                     filenames[i] = arr.GetValue(i).ToString();
                 }
@@ -293,9 +301,9 @@ namespace VsPlayer
                 else if (model != null && listboxItem == null)
                 {
                     this.DataModel.PlayList.Remove(model);
-                    this.DataModel.PlayList.Add( model);
+                    this.DataModel.PlayList.Add(model);
                 }
-                foreach(var data in this.DataModel.PlayList)
+                foreach (var data in this.DataModel.PlayList)
                 {
                     data.OnPropertyChange("Text");
                 }
@@ -305,7 +313,7 @@ namespace VsPlayer
         private void ListBoxItem_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
-            if(e.ClickCount == 2)
+            if (e.ClickCount == 2)
             {
                 var curFileObj = this.DataModel.PlayList.FirstOrDefault(m => m.IsSelected);
                 if (curFileObj == null)
@@ -326,8 +334,12 @@ namespace VsPlayer
                     var historyItem = HistoryItems.FirstOrDefault(m => m.FileLength == filelen && string.Equals(m.FileName, filename, StringComparison.CurrentCultureIgnoreCase));
                     if (historyItem != null)
                     {
-                        this.DataModel.SetVolume(historyItem.Volume);
-                        _videoForm.Player.SetVolume(historyItem.Volume);
+                        if (historyItem.Volume != null && this.DataModel.IsSetLastTimeVolume)
+                        {
+                            this.DataModel.SetVolume(historyItem.Volume.Value);
+                            _videoForm.Player.SetVolume(historyItem.Volume.Value);
+                        }
+                        _videoForm.Player.CurrentAudioStreamIndex = historyItem.AudioStreamIndex;
                     }
                 }
                 catch
@@ -385,14 +397,20 @@ namespace VsPlayer
 
                     try
                     {
+
                         long filelen = new System.IO.FileInfo(curFileObj.FilePath).Length;
                         string filename = System.IO.Path.GetFileName(curFileObj.FilePath);
                         var historyItem = HistoryItems.FirstOrDefault(m => m.FileLength == filelen && string.Equals(m.FileName, filename, StringComparison.CurrentCultureIgnoreCase));
                         if (historyItem != null)
                         {
-                            this.DataModel.SetVolume(historyItem.Volume);
-                            _videoForm.Player.SetVolume(historyItem.Volume);
+                            if (historyItem.Volume != null && this.DataModel.IsSetLastTimeVolume)
+                            {
+                                this.DataModel.SetVolume(historyItem.Volume.Value);
+                                _videoForm.Player.SetVolume(historyItem.Volume.Value);
+                            }
+                            _videoForm.Player.CurrentAudioStreamIndex = historyItem.AudioStreamIndex;
                         }
+
                     }
                     catch
                     {
@@ -404,9 +422,9 @@ namespace VsPlayer
                     this.DataModel.State = PlayState.Playing;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                MessageBox.Show(this , ex.Message);
+                MessageBox.Show(this, ex.Message);
             }
         }
 
@@ -421,7 +439,7 @@ namespace VsPlayer
                     this.DataModel.State = PlayState.Stopped;
                     rememberHistory();
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -433,7 +451,7 @@ namespace VsPlayer
         private void areaPlayPostion_MouseDown(object sender, MouseButtonEventArgs e)
         {
             e.Handled = true;
-          
+
             _mouseDownX = e.GetPosition(areaPlayPostion).X;
             if (_mouseDownX >= 0)
             {
@@ -445,18 +463,18 @@ namespace VsPlayer
 
         private void areaPlayPostion_MouseMove(object sender, MouseEventArgs e)
         {
-            if(_mouseDownX >= 0)
+            if (_mouseDownX >= 0)
             {
-               this.DataModel.CurrentPosition = (int)(this.DataModel.TotalSeconds *(e.GetPosition(areaPlayPostion).X / areaPlayPostion.ActualWidth));
+                this.DataModel.CurrentPosition = (int)(this.DataModel.TotalSeconds * (e.GetPosition(areaPlayPostion).X / areaPlayPostion.ActualWidth));
             }
         }
 
         private void areaPlayPostion_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if(_mouseDownX >= 0)
+            if (_mouseDownX >= 0)
             {
                 _mouseDownX = -1;
-                   _LockedPosition = false;
+                _LockedPosition = false;
                 _videoForm.Player.SetPosition(this.DataModel.CurrentPosition);
                 areaPlayPostion.ReleaseMouseCapture();
             }
@@ -468,7 +486,7 @@ namespace VsPlayer
         private void areaVolumn_MouseDown(object sender, MouseButtonEventArgs e)
         {
             e.Handled = true;
-           
+
             _mouseVolumnDownX = e.GetPosition(areaVolumn).X;
             if (_mouseVolumnDownX >= 0)
             {
@@ -480,7 +498,7 @@ namespace VsPlayer
 
         private void areaVolumn_MouseMove(object sender, MouseEventArgs e)
         {
-            if(_mouseVolumnDownX >= 0)
+            if (_mouseVolumnDownX >= 0)
             {
                 try
                 {
@@ -506,11 +524,11 @@ namespace VsPlayer
             ContextMenu menu = new ContextMenu();
             menu.PlacementTarget = btnSetting;
             menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
-            foreach( var screen in screens )
+            foreach (var screen in screens)
             {
                 MenuItem item = new MenuItem();
                 item.Header = screen.DeviceName;
-                if( screen == System.Windows.Forms.Screen.PrimaryScreen)
+                if (screen == System.Windows.Forms.Screen.PrimaryScreen)
                 {
                     item.Header = "主屏幕";
                     item.Tag = null;
@@ -525,16 +543,16 @@ namespace VsPlayer
             menu.IsOpen = true;
         }
 
-        System.Drawing.Size _originalSize = new System.Drawing.Size(500,300);
+        System.Drawing.Size _originalSize = new System.Drawing.Size(500, 300);
         private void ScreenItem_Click(object sender, RoutedEventArgs e)
         {
             MenuItem item = sender as MenuItem;
             System.Windows.Forms.Screen screen = item.Tag as System.Windows.Forms.Screen;
-            if( screen == null )
+            if (screen == null)
             {
                 //主屏幕
                 _videoForm.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
-                _videoForm.Location = new System.Drawing.Point(System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Left , System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Top);
+                _videoForm.Location = new System.Drawing.Point(System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Left, System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Top);
                 _videoForm.ClientSize = _originalSize;
             }
             else
@@ -542,24 +560,26 @@ namespace VsPlayer
                 //
                 _originalSize = _videoForm.ClientSize;
                 _videoForm.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-                _videoForm.Location = new System.Drawing.Point(screen.Bounds.Left,screen.Bounds.Top);                
+                _videoForm.Location = new System.Drawing.Point(screen.Bounds.Left, screen.Bounds.Top);
                 _videoForm.ClientSize = screen.Bounds.Size;
             }
         }
 
-        char[] titleArr = new char[] {'i','c','k','y','\'' };
+        char[] titleArr = new char[] { 'i', 'c', 'k', 'y', '\'' };
         private void txtTitle_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(txtTitle.Text == "VsPlayer")
+            if (txtTitle.Text == "VsPlayer")
             {
                 txtTitle.Text = "VsPlayer ";
-                Task.Run(()=> {
+                Task.Run(() =>
+                {
                     StringBuilder buffer = new StringBuilder();
-                    for(int i = 0; i < titleArr.Length; i ++)
+                    for (int i = 0; i < titleArr.Length; i++)
                     {
-                       
+
                         buffer.Append(titleArr[i]);
-                        this.Dispatcher.Invoke(()=> {
+                        this.Dispatcher.Invoke(() =>
+                        {
                             txtTitle.Text = $"V{buffer}s Player";
                         });
                         Thread.Sleep(100);
@@ -629,28 +649,17 @@ namespace VsPlayer
         {
             if (lstPicture.SelectedIndex < 0)
                 return;
-           var model =  lstPicture.SelectedItem as PlayListItemModel;
+            var model = lstPicture.SelectedItem as PlayListItemModel;
             try
             {
                 _videoForm.pictureBox.Image = System.Drawing.Bitmap.FromFile(model.FilePath);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(this, ex.Message);
             }
         }
 
-        private void chkStretchMode_Checked(object sender, RoutedEventArgs e)
-        {
-            if(chkStretchMode.IsChecked == true)
-            {
-                _videoForm.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            }
-            else
-            {
-                _videoForm.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            }
-        }
 
         private void btnDelItem_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -672,7 +681,7 @@ namespace VsPlayer
             using (System.Windows.Forms.OpenFileDialog fd = new System.Windows.Forms.OpenFileDialog())
             {
                 fd.Multiselect = true;
-                if(fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                if (fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     foreach (var filename in fd.FileNames)
                     {
@@ -710,14 +719,27 @@ namespace VsPlayer
         private void AudioStream_MenuItem_Click(object sender, RoutedEventArgs e)
         {
             MenuItem menuitem = sender as MenuItem;
-            if(menuitem.DataContext is AudioStream )
+            if (menuitem.DataContext is AudioStream)
             {
-                if(menuitem.IsChecked != true)
+                if (menuitem.IsChecked != true)
                 {
                     var audiostream = menuitem.DataContext as AudioStream;
                     _videoForm.Player.CurrentAudioStreamIndex = _videoForm.Player.CurrentAudioStreams.IndexOf(audiostream);
                 }
-               
+
+            }
+        }
+
+        private void chkStretchMode_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            chkStretchMode_MenuItem.IsChecked = !chkStretchMode_MenuItem.IsChecked;
+            if (chkStretchMode_MenuItem.IsChecked == true)
+            {
+                _videoForm.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            }
+            else
+            {
+                _videoForm.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             }
         }
     }

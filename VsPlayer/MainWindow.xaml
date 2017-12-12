@@ -30,6 +30,13 @@
                                             <Image Source="images/media.png"></Image>
                                         </MenuItem.Icon>
                                     </MenuItem>
+                                    
+                                    <Separator/>
+                                    <MenuItem Header="清空播放列表" Click="ClearPlayList_MenuItem_Click">
+                                        <MenuItem.Icon>
+                                            <Image Source="images/clear.png"></Image>
+                                        </MenuItem.Icon>
+                                    </MenuItem>
                                     <Separator/>
                                     <MenuItem Header="音轨" x:Name="menu_audioTracks">
                                         <MenuItem.ItemContainerStyle>
@@ -40,12 +47,7 @@
                                             </Style>
                                         </MenuItem.ItemContainerStyle>
                                     </MenuItem>
-                                    <Separator/>
-                                    <MenuItem Header="清空播放列表" Click="ClearPlayList_MenuItem_Click">
-                                        <MenuItem.Icon>
-                                            <Image Source="images/clear.png"></Image>
-                                        </MenuItem.Icon>
-                                    </MenuItem>
+                                    <MenuItem Header="自动设置上一次音量值" IsCheckable="True" IsChecked="{Binding IsSetLastTimeVolume}"/>
                                 </ContextMenu>
                             </ListBox.ContextMenu>
                             <ListBox.ItemTemplate>
@@ -75,6 +77,8 @@
                                             <Image Source="images/picture.png"></Image>
                                         </MenuItem.Icon>
                                     </MenuItem>
+                                    <Separator></Separator>
+                                    <MenuItem x:Name="chkStretchMode_MenuItem" Header="拉伸背景图" Click="chkStretchMode_MenuItem_Click"/>
                                 </ContextMenu>
                             </ListBox.ContextMenu>
                             <ListBox.ItemTemplate>
@@ -135,7 +139,6 @@
                                     </Grid>
                                     
                                 </StackPanel>
-                                <CheckBox x:Name="chkStretchMode" Content="拉伸背景图" Checked="chkStretchMode_Checked" Unchecked="chkStretchMode_Checked" HorizontalAlignment="Right" Foreground="#ccc" Margin="0,8,30,7"/>
                                 <Image x:Name="btnSetting" SnapsToDevicePixels="True" MouseDown="btnSetting_MouseDown" Width="16" Cursor="Hand" Height="16" Source="images/screen.png" HorizontalAlignment="Right" Margin="0,8,6,7"></Image>
                             </Grid>
                         </Grid>

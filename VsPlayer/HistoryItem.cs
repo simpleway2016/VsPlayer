@@ -11,6 +11,6 @@ namespace VsPlayer
         public string FileName;
         public long FileLength;
         public int AudioStreamIndex;
-        public int Volume;
+        public int? Volume;
     }
 }
