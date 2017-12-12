@@ -102,7 +102,7 @@ namespace VsPlayer
             OnRenderSizeChanged(null);
         }
         PlayListItemModel _lastPlayingModel = null;
-        void rememberHistory()
+        void rememberHistory(bool otherThreadSave = true)
         {
             var playingModel = _lastPlayingModel;
             if (playingModel != null)
@@ -130,21 +130,31 @@ namespace VsPlayer
                         historyitem.AudioStreamIndex = _videoForm.Player.CurrentAudioStreamIndex;
                         historyitem.Volume = _videoForm.Player.GetVolume();
                     }
-                    Task.Run(() => {
-                        try
+                    if (otherThreadSave)
+                    {
+                        Task.Run(() =>
                         {
-                            lock (HistoryItems)
+                            try
                             {
-                                System.IO.File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "history.json",
-                                    Newtonsoft.Json.JsonConvert.SerializeObject(HistoryItems),
-                                    System.Text.Encoding.UTF8);
+                                lock (HistoryItems)
+                                {
+                                    System.IO.File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "history.json",
+                                        Newtonsoft.Json.JsonConvert.SerializeObject(HistoryItems),
+                                        System.Text.Encoding.UTF8);
+                                }
                             }
-                        }
-                        catch
-                        {
+                            catch
+                            {
 
-                        }
-                    });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        System.IO.File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "history.json",
+                                       Newtonsoft.Json.JsonConvert.SerializeObject(HistoryItems),
+                                       System.Text.Encoding.UTF8);
+                    }
                 }
                 catch
                 {
@@ -205,6 +215,12 @@ namespace VsPlayer
             Config.PlayList.AddRange(this.DataModel.PlayList);
             Config.BackgroundList.AddRange(this.DataModel.BackgroundList);
             Config.Save();
+
+            if (this.DataModel.State != PlayState.Stopped)
+            {
+                rememberHistory(false);
+            }
+
             System.Diagnostics.Process.GetCurrentProcess().Kill();
             base.OnClosing(e);
         }
