@@ -74,6 +74,8 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AudioStream.cs" />
+    <Compile Include="HistoryItem.cs" />
     <Compile Include="VideoForm.cs">
       <SubType>Form</SubType>
     </Compile>

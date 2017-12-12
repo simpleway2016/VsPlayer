@@ -31,6 +31,16 @@
                                         </MenuItem.Icon>
                                     </MenuItem>
                                     <Separator/>
+                                    <MenuItem Header="音轨" x:Name="menu_audioTracks">
+                                        <MenuItem.ItemContainerStyle>
+                                            <Style TargetType="{x:Type MenuItem}">
+                                                <Setter Property="Header" Value="{Binding Name}"></Setter>
+                                                <Setter Property="IsChecked" Value="{Binding IsChecked}"></Setter>
+                                                <EventSetter Event="Click" Handler="AudioStream_MenuItem_Click"></EventSetter>
+                                            </Style>
+                                        </MenuItem.ItemContainerStyle>
+                                    </MenuItem>
+                                    <Separator/>
                                     <MenuItem Header="清空播放列表" Click="ClearPlayList_MenuItem_Click">
                                         <MenuItem.Icon>
                                             <Image Source="images/clear.png"></Image>

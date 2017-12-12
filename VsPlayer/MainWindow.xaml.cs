@@ -37,11 +37,24 @@ namespace VsPlayer
         VideoForm _videoForm;
         bool _LockedPosition;
         WayControls.Windows.Hook.KeyBordHook _keyHook;
+        internal List<HistoryItem> HistoryItems = new List<HistoryItem>();
         public MainWindow()
         {
             InitializeComponent();
-            
+          
             this.Config = Config.GetInstance();
+
+            try
+            {
+                string json = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "history.json", System.Text.Encoding.UTF8);
+                HistoryItems = new List<HistoryItem>( Newtonsoft.Json.JsonConvert.DeserializeObject<HistoryItem[]>(json));
+            }
+            catch
+            {
+               
+            }
+
+
             if (Config.WindowWidth != null)
                 this.Width = Config.WindowWidth.Value;
             if (Config.WindowHeight != null)
@@ -67,6 +80,8 @@ namespace VsPlayer
             _videoForm.Player.PlayCompleted += (s, e) => {
                 _videoForm.Player.Visible = false;
                 this.DataModel.State = PlayState.Stopped;
+                rememberHistory();
+                _videoForm.Player.CurrentAudioStreamIndex = 0;
                 try
                 {
                     lstPlayList.SelectedIndex = lstPlayList.SelectedIndex + 1;
@@ -74,7 +89,7 @@ namespace VsPlayer
                 catch { }
             };
             _videoForm.Show();
-            _videoForm.Player.SetVolumn(this.DataModel.Volumn);
+            _videoForm.Player.SetVolume(this.DataModel.Volumn);
             new Thread(updatePosition).Start();
 
             chkStretchMode.IsChecked = this.Config.IsStretchMode;
@@ -83,7 +98,59 @@ namespace VsPlayer
             _keyHook.OnKeyDownEvent += _keyHook_OnKeyDownEvent;
             _keyHook.Start((int)WayControls.Windows.API.GetCurrentThreadId());
 
+            menu_audioTracks.ItemsSource = _videoForm.Player.CurrentAudioStreams;
             OnRenderSizeChanged(null);
+        }
+        PlayListItemModel _lastPlayingModel = null;
+        void rememberHistory()
+        {
+            var playingModel = _lastPlayingModel;
+            if (playingModel != null)
+            {
+                try
+                {
+                    string filename = System.IO.Path.GetFileName(playingModel.FilePath);
+                    long filelen = new System.IO.FileInfo(playingModel.FilePath).Length;
+                    var historyitem = HistoryItems.FirstOrDefault(m => m.FileLength == filelen && string.Equals(m.FileName, filename, StringComparison.CurrentCultureIgnoreCase));
+                    if (historyitem == null)
+                    {
+                        historyitem = new HistoryItem()
+                        {
+                            FileLength = filelen,
+                            FileName = filename,
+                            AudioStreamIndex = _videoForm.Player.CurrentAudioStreamIndex,
+                            Volume = _videoForm.Player.GetVolume()
+                        };
+                        HistoryItems.Add(historyitem);
+                        if (HistoryItems.Count > 200)
+                            HistoryItems.RemoveAt(0);
+                    }
+                    else
+                    {
+                        historyitem.AudioStreamIndex = _videoForm.Player.CurrentAudioStreamIndex;
+                        historyitem.Volume = _videoForm.Player.GetVolume();
+                    }
+                    Task.Run(() => {
+                        try
+                        {
+                            lock (HistoryItems)
+                            {
+                                System.IO.File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "history.json",
+                                    Newtonsoft.Json.JsonConvert.SerializeObject(HistoryItems),
+                                    System.Text.Encoding.UTF8);
+                            }
+                        }
+                        catch
+                        {
+
+                        }
+                    });
+                }
+                catch
+                {
+
+                }
+            }
         }
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
@@ -98,13 +165,13 @@ namespace VsPlayer
             {
                 e.CallNextHookEx = false;
                 this.DataModel.UpVolume();
-                _videoForm.Player.SetVolumn(this.DataModel.Volumn);
+                _videoForm.Player.SetVolume(this.DataModel.Volumn);
             }
             else if (e.KeyCode == System.Windows.Forms.Keys.Down)
             {
                 e.CallNextHookEx = false;
                 this.DataModel.DownVolume();
-                _videoForm.Player.SetVolumn(this.DataModel.Volumn);
+                _videoForm.Player.SetVolume(this.DataModel.Volumn);
             }
         }
 
@@ -228,10 +295,30 @@ namespace VsPlayer
                 if (curFileObj == null)
                     return;
 
-                _videoForm.Player.Stop();
-                this.DataModel.State = PlayState.Stopped;
+                if (this.DataModel.State != PlayState.Stopped)
+                {
+                    _videoForm.Player.Stop();
+                    this.DataModel.State = PlayState.Stopped;
+                    rememberHistory();
+                }
 
                 _videoForm.Player.Visible = true;
+                try
+                {
+                    long filelen = new System.IO.FileInfo(curFileObj.FilePath).Length;
+                    string filename = System.IO.Path.GetFileName(curFileObj.FilePath);
+                    var historyItem = HistoryItems.FirstOrDefault(m => m.FileLength == filelen && string.Equals(m.FileName, filename, StringComparison.CurrentCultureIgnoreCase));
+                    if (historyItem != null)
+                    {
+                        this.DataModel.SetVolume(historyItem.Volume);
+                        _videoForm.Player.SetVolume(historyItem.Volume);
+                    }
+                }
+                catch
+                {
+
+                }
+                _lastPlayingModel = curFileObj;
                 this._videoForm.Player.Open(curFileObj.FilePath);
                 this.DataModel.State = PlayState.Playing;
                 return;
@@ -279,6 +366,24 @@ namespace VsPlayer
                     if (curFileObj == null)
                         return;
                     _videoForm.Player.Visible = true;
+
+                    try
+                    {
+                        long filelen = new System.IO.FileInfo(curFileObj.FilePath).Length;
+                        string filename = System.IO.Path.GetFileName(curFileObj.FilePath);
+                        var historyItem = HistoryItems.FirstOrDefault(m => m.FileLength == filelen && string.Equals(m.FileName, filename, StringComparison.CurrentCultureIgnoreCase));
+                        if (historyItem != null)
+                        {
+                            this.DataModel.SetVolume(historyItem.Volume);
+                            _videoForm.Player.SetVolume(historyItem.Volume);
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+
+                    _lastPlayingModel = curFileObj;
                     this._videoForm.Player.Open(curFileObj.FilePath);
                     this.DataModel.State = PlayState.Playing;
                 }
@@ -293,11 +398,12 @@ namespace VsPlayer
         {
             try
             {
-                if (this.DataModel.State != PlayState.Paused)
+                if (this.DataModel.State != PlayState.Stopped)
                 {
                     this._videoForm.Player.Stop();
                     _videoForm.Player.Visible = false;
                     this.DataModel.State = PlayState.Stopped;
+                    rememberHistory();
                 }
                 
             }
@@ -352,7 +458,7 @@ namespace VsPlayer
             {
                 areaVolumn.CaptureMouse();
                 this.DataModel.VolumnBgWidth = (int)_mouseVolumnDownX;
-                _videoForm.Player.SetVolumn(this.DataModel.Volumn);
+                _videoForm.Player.SetVolume(this.DataModel.Volumn);
             }
         }
 
@@ -365,7 +471,7 @@ namespace VsPlayer
                     this.DataModel.VolumnBgWidth = (int)e.GetPosition(areaVolumn).X;
                 }
                 catch { }
-                _videoForm.Player.SetVolumn(this.DataModel.Volumn);
+                _videoForm.Player.SetVolume(this.DataModel.Volumn);
             }
         }
 
@@ -582,6 +688,20 @@ namespace VsPlayer
                         this.DataModel.BackgroundList.Add(model);
                     }
                 }
+            }
+        }
+
+        private void AudioStream_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuitem = sender as MenuItem;
+            if(menuitem.DataContext is AudioStream )
+            {
+                if(menuitem.IsChecked != true)
+                {
+                    var audiostream = menuitem.DataContext as AudioStream;
+                    _videoForm.Player.CurrentAudioStreamIndex = _videoForm.Player.CurrentAudioStreams.IndexOf(audiostream);
+                }
+               
             }
         }
     }

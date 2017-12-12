@@ -181,7 +181,7 @@ namespace VsPlayer
 
         }
 
-        static int[] volumes = new int[]{-10000,-6418,-6147,-6000,
+        static List<int> volumes = new List<int>( new int[]{-10000,-6418,-6147,-6000,
         -5892,-4826,-4647,-4540
         -4477, -4162,-3876, -3614, -3500,
         -3492,-3374,-3261,-3100,-3153,-3048,-2947,-2849,-2755,-2700,
@@ -191,7 +191,7 @@ namespace VsPlayer
         -1096,-1060, -1049,-1020,-1003,-957,-912,-868, -800, -774,-784, -760, -744,
         -705,-667,-630,-610,-594,-570 ,-558,-525,-493,-462,-432,-403,
         -375,-348,-322,-297,-285, -273,-250,-228,-207,-187,-176, -168,
-        -150,-102,-75,-19,-10,0,0};
+        -150,-102,-75,-19,-10,0,0});
 
         int _VolumnBgWidth = 0;
         public int VolumnBgWidth
@@ -209,7 +209,7 @@ namespace VsPlayer
                 {
                     _VolumnBgWidth = value;
                     this.VolumnPointLocation = new Thickness( value - 3 , 7,0,0);
-                    this.Volumn = volumes[(int)((volumes.Length - 1) * (value / 77.0))];
+                    this.Volumn = volumes[(int)((volumes.Count - 1) * (value / 77.0))];
                     this.OnPropertyChange("VolumnBgWidth");
                 }
             }
@@ -301,13 +301,25 @@ namespace VsPlayer
             this.PlayList = new ObservableCollection<PlayListItemModel>();
             this.BackgroundList = new ObservableCollection<PlayListItemModel>();
         }
+        public void SetVolume(int volume)
+        {
+            try
+            {
+                var index = volumes.IndexOf(volume);
+                this.VolumnBgWidth = (index * 77) / (volumes.Count - 1);
+                this.Volumn = volumes[index];
+            }
+            catch
+            {
 
+            }
+        }
         public void DownVolume()
         {
             try
             {
                 var index = new List<int>(volumes).IndexOf(this.Volumn) - 1;
-                this.VolumnBgWidth = (index * 77) / (volumes.Length - 1);
+                this.VolumnBgWidth = (index * 77) / (volumes.Count - 1);
                 this.Volumn = volumes[index];
             }
             catch
@@ -320,9 +332,9 @@ namespace VsPlayer
             try
             {
                 var index = new List<int>(volumes).IndexOf(this.Volumn) + 1;
-                if (index < volumes.Length)
+                if (index < volumes.Count)
                 {
-                    this.VolumnBgWidth = (index * 77) / (volumes.Length - 1);
+                    this.VolumnBgWidth = (index * 77) / (volumes.Count - 1);
                     this.Volumn = volumes[index];
                 }
             }

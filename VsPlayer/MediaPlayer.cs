@@ -4,6 +4,7 @@ using MediaFoundation.EVR;
 using Sonic;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -18,10 +19,52 @@ namespace VsPlayer
         public event EventHandler PlayCompleted;
         MediaBuilder _mediaBuilder;
         IMFVideoDisplayControl EvrDisplayControl;
+        internal ObservableCollection<AudioStream> CurrentAudioStreams
+        {
+            get;
+            private set;
+        }
+
+        int _CurrentAudioStreamIndex = 0;
+        internal int CurrentAudioStreamIndex
+        {
+            get
+            {
+                return _CurrentAudioStreamIndex;
+            }
+            set
+            {
+                _CurrentAudioStreamIndex = value;
+                try
+                {
+                    CurrentAudioStreams.Where(m => m.IsChecked).FirstOrDefault().IsChecked = false;
+                    CurrentAudioStreams[value].IsChecked = true;
+                    //_mediaBuilder.StopForPinReconnect();
+                    //var pin = _audioFilter.InputPin.ConnectedTo;
+                    //_audioFilter.InputPin.Disconnect();
+                    //_audioFilter.OutputPin.Disconnect();
+
+                    if (_streamSelect != null)
+                    {
+                        _streamSelect.Enable(CurrentAudioStreams[value].Index, DirectShowLib.AMStreamSelectEnableFlags.Enable);
+                    }
+
+                    //_audioFilter.InputPin.Connect(pin).Throw();
+                    //_audioFilter.OutputPin.Render().Throw();
+                   
+                    //_mediaBuilder.Run();
+                }
+                catch
+                {
+
+                }
+            }
+        }
         public MediaPlayer()
         {
 
                _mediaBuilder = new MediaBuilder();
+            this.CurrentAudioStreams = new ObservableCollection<AudioStream>();
 
             _mediaBuilder.DoOpenFileWithSplitter += _mediaBuilder_DoOpenFileWithSplitter;
             _mediaBuilder.DoDecodeAudio += _mediaBuilder_DoDecodeAudio;
@@ -41,7 +84,8 @@ namespace VsPlayer
         {
             if (lEventCode == EventCode.Complete)
             {
-                if(PlayCompleted != null)
+                _streamSelect = null;
+                if (PlayCompleted != null)
                 {
                     PlayCompleted(this, null);
                 }
@@ -94,15 +138,17 @@ namespace VsPlayer
             }
         }
 
+        DSFilter _audioFilter;
         private Sonic.DSFilter _mediaBuilder_DoDecodeAudio(Sonic.DSPin pin)
         {
-            DSFilter lavaudio = new DSFilter(MediaFactory.LAVAudio() as IBaseFilter); //new ffdshowAudioDec() as IBaseFilter;
-            _mediaBuilder.AddFilter(lavaudio, "audioDecode");
-            HRESULT hr = pin.Connect(lavaudio.InputPin);
+            _audioFilter = new DSFilter(MediaFactory.LAVAudio() as IBaseFilter); //new ffdshowAudioDec() as IBaseFilter;
+            _mediaBuilder.AddFilter(_audioFilter, "audioDecode");
+            HRESULT hr = pin.Connect(_audioFilter.InputPin);
             hr.Throw();
-            return lavaudio;
+            return _audioFilter;
         }
 
+        DirectShowLib.IAMStreamSelect _streamSelect;
         private Sonic.DSFilter _mediaBuilder_DoOpenFileWithSplitter(string filepath)
         {
             var filter = (DirectShow.IBaseFilter)MediaFactory.LAVSplitterSource();
@@ -114,6 +160,41 @@ namespace VsPlayer
             int hr = source.Load(filepath, new AMMediaType());
             DsError.ThrowExceptionForHR(hr);
 
+            _streamSelect = source as DirectShowLib.IAMStreamSelect;
+            int streamCount;
+            DirectShowLib.AMMediaType type;
+            DirectShowLib.AMStreamSelectInfoFlags fl;
+            int plcid;
+            int gr;
+            string name;
+            object o1, o2;
+            _streamSelect.Count(out streamCount);
+            CurrentAudioStreams.Clear();
+
+            for (int i = 0; i < streamCount; i++)
+            {
+                _streamSelect.Info(i, out type, out fl, out plcid, out gr, out name, out o1, out o2);
+                if (type.majorType == DirectShowLib.MediaType.Audio)
+                {
+                    CurrentAudioStreams.Add(new AudioStream()
+                    {
+                        Index = i,
+                        Name = name,
+                    });
+                }
+            }
+            try
+            {
+                CurrentAudioStreams[CurrentAudioStreamIndex].IsChecked = true;
+                if (CurrentAudioStreamIndex != 0)
+                {
+                    _streamSelect.Enable(CurrentAudioStreams[CurrentAudioStreamIndex].Index, DirectShowLib.AMStreamSelectEnableFlags.Enable);
+                }
+            }
+            catch
+            {
+
+            }
             return splitter;
         }
 
@@ -123,6 +204,7 @@ namespace VsPlayer
         }
         public void Stop()
         {
+            _streamSelect = null;
             _mediaBuilder.Stop();
         }
 
@@ -134,10 +216,13 @@ namespace VsPlayer
         {
             return _mediaBuilder.GetCurrentPosition();
         }
-
-        public void SetVolumn(int volumn)
+        public int GetVolume()
         {
-            _mediaBuilder.Volumn = volumn;
+            return _mediaBuilder.Volumn;
+        }
+        public void SetVolume(int volume)
+        {
+            _mediaBuilder.Volumn = volume;
         }
 
         public double GetDuration()
