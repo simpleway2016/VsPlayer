@@ -38,6 +38,7 @@ namespace VsPlayer
                             this.PlayButtonImage = "images/pause.png";
                             break;
                         case PlayState.Stopped:
+                            this.CurrentPosition = 0;
                             this.PlayButtonImage = "images/play.png";
                             break;
                     }
