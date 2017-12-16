@@ -43,9 +43,6 @@ namespace VsPlayer
         {
             InitializeComponent();
 
-            CommandExcute.executeCmd("reg import \"" + AppDomain.CurrentDomain.BaseDirectory + "codes\\Reset to defaults.reg\"");
-            CommandExcute.executeCmd("reg import \"" + AppDomain.CurrentDomain.BaseDirectory + "codes\\Presets.reg\"");
-
             this.Config = Config.GetInstance();
 
             try
