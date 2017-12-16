@@ -39,9 +39,23 @@ namespace VsPlayer
         bool _LockedPosition;
         WayControls.Windows.Hook.KeyBordHook _keyHook;
         internal List<HistoryItem> HistoryItems = new List<HistoryItem>();
+        [DllImport("kernel32.dll")]
+        static extern uint SetThreadExecutionState(ExecutionFlag flags);
+
+        [Flags]
+        enum ExecutionFlag : uint
+        {
+            System = 0x00000001,
+            Display = 0x00000002,
+            Continus = 0x80000000,
+        }
+
         public MainWindow()
         {
             InitializeComponent();
+
+            //阻止系统休眠，直到线程结束恢复休眠策略
+            SetThreadExecutionState(ExecutionFlag.System | ExecutionFlag.Display | ExecutionFlag.Continus);
 
             this.Config = Config.GetInstance();
 
