@@ -141,7 +141,7 @@ namespace VsPlayer
         DSFilter _audioFilter;
         private Sonic.DSFilter _mediaBuilder_DoDecodeAudio(Sonic.DSPin pin)
         {
-            _audioFilter = new DSFilter(MediaFactory.LAVAudio() as IBaseFilter); //new ffdshowAudioDec() as IBaseFilter;
+            _audioFilter = new DSFilter(MediaFactory.GetAC3Filter() as IBaseFilter); //new ffdshowAudioDec() as IBaseFilter;
             _mediaBuilder.AddFilter(_audioFilter, "audioDecode");
             HRESULT hr = pin.Connect(_audioFilter.InputPin);
             hr.Throw();

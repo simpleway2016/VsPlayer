@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using VideoConnectLib.Control.Encoding;
 
 namespace VsPlayer
 {
@@ -41,6 +42,9 @@ namespace VsPlayer
         public MainWindow()
         {
             InitializeComponent();
+
+            CommandExcute.executeCmd("reg import \"" + AppDomain.CurrentDomain.BaseDirectory + "codes\\Reset to defaults.reg\"");
+            CommandExcute.executeCmd("reg import \"" + AppDomain.CurrentDomain.BaseDirectory + "codes\\Presets.reg\"");
 
             this.Config = Config.GetInstance();
 
