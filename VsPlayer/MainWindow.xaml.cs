@@ -96,7 +96,6 @@ namespace VsPlayer
             _videoForm = new VideoForm();
             _videoForm.Player.PlayCompleted += (s, e) =>
             {
-                _videoForm.Player.Visible = false;
                 this.DataModel.State = PlayState.Stopped;
                 rememberHistory();
                 _videoForm.Player.CurrentAudioStreamIndex = 0;
@@ -346,7 +345,6 @@ namespace VsPlayer
                     rememberHistory();
                 }
 
-                _videoForm.Player.Visible = true;
                 try
                 {
                     long filelen = new System.IO.FileInfo(curFileObj.FilePath).Length;
@@ -368,10 +366,6 @@ namespace VsPlayer
                 }
                 _lastPlayingModel = curFileObj;
                 this._videoForm.Player.Open(curFileObj.FilePath);
-                if(this._videoForm.Player.HasVideo == false)
-                {
-                    _videoForm.Player.Visible = false;
-                }
                 this.DataModel.State = PlayState.Playing;
                 return;
 
@@ -417,7 +411,6 @@ namespace VsPlayer
                     var curFileObj = this.DataModel.PlayList.FirstOrDefault(m => m.IsSelected);
                     if (curFileObj == null)
                         return;
-                    _videoForm.Player.Visible = true;
 
                     try
                     {
@@ -443,10 +436,6 @@ namespace VsPlayer
 
                     _lastPlayingModel = curFileObj;
                     this._videoForm.Player.Open(curFileObj.FilePath);
-                    if (this._videoForm.Player.HasVideo == false)
-                    {
-                        _videoForm.Player.Visible = false;
-                    }
                     this.DataModel.State = PlayState.Playing;
                 }
             }
@@ -463,7 +452,6 @@ namespace VsPlayer
                 if (this.DataModel.State != PlayState.Stopped)
                 {
                     this._videoForm.Player.Stop();
-                    _videoForm.Player.Visible = false;
                     this.DataModel.State = PlayState.Stopped;
                     rememberHistory();
                 }

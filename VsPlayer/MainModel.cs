@@ -35,9 +35,14 @@ namespace VsPlayer
                             this.PlayButtonImage = "images/play.png";
                             break;
                         case PlayState.Playing:
+                            if (MediaPlayer.instance.HasVideo)
+                            {
+                                MediaPlayer.instance.Visible = true;
+                            }
                             this.PlayButtonImage = "images/pause.png";
                             break;
                         case PlayState.Stopped:
+                            MediaPlayer.instance.Visible = false;
                             this.CurrentPosition = 0;
                             this.TotalSeconds = 0;
                             this.PlayButtonImage = "images/play.png";

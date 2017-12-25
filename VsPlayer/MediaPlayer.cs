@@ -16,6 +16,7 @@ namespace VsPlayer
 {
     public class MediaPlayer : System.Windows.Forms.Control
     {
+        public static MediaPlayer instance;
         public event EventHandler PlayCompleted;
         MediaBuilder _mediaBuilder;
         IMFVideoDisplayControl EvrDisplayControl;
@@ -102,7 +103,7 @@ namespace VsPlayer
         }
         public MediaPlayer()
         {
-
+            instance = this;
                _mediaBuilder = new MediaBuilder();
             this.CurrentAudioStreams = new ObservableCollection<AudioStream>();
 
