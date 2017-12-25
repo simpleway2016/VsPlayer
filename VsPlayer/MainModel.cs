@@ -39,6 +39,7 @@ namespace VsPlayer
                             break;
                         case PlayState.Stopped:
                             this.CurrentPosition = 0;
+                            this.TotalSeconds = 0;
                             this.PlayButtonImage = "images/play.png";
                             break;
                     }
@@ -114,7 +115,23 @@ namespace VsPlayer
             }
 
         }
+        bool _IsVideoStretchMode;
+        public bool IsVideoStretchMode
+        {
+            get
+            {
+                return _IsVideoStretchMode;
+            }
+            set
+            {
+                if (_IsVideoStretchMode != value)
+                {
+                    _IsVideoStretchMode = value;
+                    this.OnPropertyChange("IsVideoStretchMode");
+                }
+            }
 
+        }
         int _TotalSeconds;
         public int TotalSeconds
         {
@@ -365,9 +382,15 @@ namespace VsPlayer
         }
         void updatePlayingPercent()
         {
-           var left =  (this.CurrentPosition*100) / this.TotalSeconds;
-            if (left > 100)
-                left = 100;
+            var total = this.TotalSeconds;
+            int left = 0;
+            if (total > 0)
+            {
+                left = (this.CurrentPosition * 100) / this.TotalSeconds;
+                if (left > 100)
+                    left = 100;
+              
+            }
             this.PlayingPercentText = left + "*";
             this.PlayingPercentText2 = (100 - left) + "*";
         }

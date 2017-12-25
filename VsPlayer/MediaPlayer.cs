@@ -60,6 +60,46 @@ namespace VsPlayer
                 }
             }
         }
+
+        bool _HasVideo = false;
+        public bool HasVideo
+        {
+            get
+            {
+                return _HasVideo;
+            }
+            private set
+            {
+                if(_HasVideo != value)
+                {
+                    _HasVideo = value;
+                }
+            }
+        }
+
+        bool _IsVideoStretchMode = false;
+        internal bool IsVideoStretchMode
+        {
+            get
+            {
+                return _IsVideoStretchMode;
+            }
+            set
+            {
+                if (_IsVideoStretchMode != value)
+                {
+                    _IsVideoStretchMode = value;
+                    try
+                    {
+                        EvrDisplayControl.SetAspectRatioMode(value ? MFVideoAspectRatioMode.None : MFVideoAspectRatioMode.PreservePixel);
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+        }
         public MediaPlayer()
         {
 
@@ -129,8 +169,9 @@ namespace VsPlayer
 
                 EvrDisplayControl.SetVideoWindow(this.Handle);
                 EvrDisplayControl.SetVideoPosition(new MFVideoNormalizedRect(0, 0, 1, 1), new MediaFoundation.Misc.MFRect(0, 0, this.Width,this.Height));
+                EvrDisplayControl.SetAspectRatioMode(this.IsVideoStretchMode ? MFVideoAspectRatioMode.None : MFVideoAspectRatioMode.PreservePixel);
 
-
+                this.HasVideo = true;
             }
             else
             {
@@ -200,6 +241,7 @@ namespace VsPlayer
 
         public void Open(string file)
         {
+            this.HasVideo = false;
             _mediaBuilder.OpenFile(file, true);
         }
         public void Stop()

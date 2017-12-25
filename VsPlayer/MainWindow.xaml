@@ -48,6 +48,7 @@
                                         </MenuItem.ItemContainerStyle>
                                     </MenuItem>
                                     <MenuItem Header="自动设置上一次音量值" IsCheckable="True" IsChecked="{Binding IsSetLastTimeVolume}"/>
+                                    <MenuItem Header="拉伸视频模式" IsCheckable="True" IsChecked="{Binding IsVideoStretchMode}" x:Name="menuVideoStretchMode" Checked="menuVideoStretchMode_Checked" Unchecked="menuVideoStretchMode_Checked"/>
                                 </ContextMenu>
                             </ListBox.ContextMenu>
                             <ListBox.ItemTemplate>

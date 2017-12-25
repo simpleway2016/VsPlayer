@@ -88,6 +88,7 @@ namespace VsPlayer
             }
             DataModel.VolumnBgWidth = (int)(Config.VolumnBgWidth ?? 77);
             this.DataModel.IsSetLastTimeVolume = Config.IsSetLastTimeVolume;
+            this.DataModel.IsVideoStretchMode = this.Config.IsVideoStretchMode;
             this.Config.PlayList.Clear();
             this.Config.BackgroundList.Clear();
             this.DataContext = DataModel;
@@ -235,6 +236,7 @@ namespace VsPlayer
         {
             Config.WindowWidth = this.Width;
             Config.WindowHeight = this.Height;
+            this.Config.IsVideoStretchMode = this.DataModel.IsVideoStretchMode;
             this.Config.IsSetLastTimeVolume = this.DataModel.IsSetLastTimeVolume;
             this.Config.IsStretchMode = (chkStretchMode_MenuItem.IsChecked == true);
             Config.VolumnBgWidth = DataModel.VolumnBgWidth;
@@ -366,6 +368,10 @@ namespace VsPlayer
                 }
                 _lastPlayingModel = curFileObj;
                 this._videoForm.Player.Open(curFileObj.FilePath);
+                if(this._videoForm.Player.HasVideo == false)
+                {
+                    _videoForm.Player.Visible = false;
+                }
                 this.DataModel.State = PlayState.Playing;
                 return;
 
@@ -437,6 +443,10 @@ namespace VsPlayer
 
                     _lastPlayingModel = curFileObj;
                     this._videoForm.Player.Open(curFileObj.FilePath);
+                    if (this._videoForm.Player.HasVideo == false)
+                    {
+                        _videoForm.Player.Visible = false;
+                    }
                     this.DataModel.State = PlayState.Playing;
                 }
             }
@@ -759,6 +769,11 @@ namespace VsPlayer
             {
                 _videoForm.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             }
+        }
+
+        private void menuVideoStretchMode_Checked(object sender, RoutedEventArgs e)
+        {
+            _videoForm.Player.IsVideoStretchMode = this.DataModel.IsVideoStretchMode;
         }
     }
 }
