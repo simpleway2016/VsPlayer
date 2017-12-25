@@ -200,7 +200,14 @@ namespace VsPlayer
 
             DirectShow.IFileSourceFilter source = splitter.Value as DirectShow.IFileSourceFilter;
             int hr = source.Load(filepath, new AMMediaType());
-            DsError.ThrowExceptionForHR(hr);
+            try
+            {
+                DsError.ThrowExceptionForHR(hr);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception($"无法播放媒体文件“{filepath}”");
+            }
 
             _streamSelect = source as DirectShowLib.IAMStreamSelect;
             int streamCount;

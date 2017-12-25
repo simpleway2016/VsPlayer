@@ -365,8 +365,15 @@ namespace VsPlayer
 
                 }
                 _lastPlayingModel = curFileObj;
-                this._videoForm.Player.Open(curFileObj.FilePath);
-                this.DataModel.State = PlayState.Playing;
+                try
+                {
+                    this._videoForm.Player.Open(curFileObj.FilePath);
+                    this.DataModel.State = PlayState.Playing;
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(this ,ex.Message);
+                }
                 return;
 
             }
@@ -435,8 +442,14 @@ namespace VsPlayer
                     }
 
                     _lastPlayingModel = curFileObj;
-                    this._videoForm.Player.Open(curFileObj.FilePath);
-                    this.DataModel.State = PlayState.Playing;
+                    try { 
+                        this._videoForm.Player.Open(curFileObj.FilePath);
+                        this.DataModel.State = PlayState.Playing;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(this, ex.Message);
+                    }
                 }
             }
             catch (Exception ex)
