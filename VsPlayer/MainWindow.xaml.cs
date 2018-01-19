@@ -89,6 +89,8 @@ namespace VsPlayer
             DataModel.VolumnBgWidth = (int)(Config.VolumnBgWidth ?? 77);
             this.DataModel.IsSetLastTimeVolume = Config.IsSetLastTimeVolume;
             this.DataModel.IsVideoStretchMode = this.Config.IsVideoStretchMode;
+            this.DataModel.IsListLoop = this.Config.IsListLoop;
+            this.DataModel.IsSingleLoop = this.Config.IsSingleLoop;
             this.Config.PlayList.Clear();
             this.Config.BackgroundList.Clear();
             this.DataContext = DataModel;
@@ -99,11 +101,30 @@ namespace VsPlayer
                 this.DataModel.State = PlayState.Stopped;
                 rememberHistory();
                 _videoForm.Player.CurrentAudioStreamIndex = 0;
-                try
+                if (this.DataModel.IsSingleLoop)
                 {
-                    lstPlayList.SelectedIndex = lstPlayList.SelectedIndex + 1;
+                    btnPlay_MouseDown(null, null);
                 }
-                catch { }
+                else
+                {
+                    if (this.DataModel.IsListLoop && lstPlayList.SelectedIndex == lstPlayList.Items.Count - 1)
+                    {
+                        try
+                        {
+                            lstPlayList.SelectedIndex = 0;
+                        }
+                        catch { }
+                        btnPlay_MouseDown(null, null);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            lstPlayList.SelectedIndex = lstPlayList.SelectedIndex + 1;
+                        }
+                        catch { }
+                    }
+                }
             };
             _videoForm.Show();
             _videoForm.Player.SetVolume(this.DataModel.Volumn);
@@ -237,6 +258,8 @@ namespace VsPlayer
             Config.WindowHeight = this.Height;
             this.Config.IsVideoStretchMode = this.DataModel.IsVideoStretchMode;
             this.Config.IsSetLastTimeVolume = this.DataModel.IsSetLastTimeVolume;
+            this.Config.IsListLoop = this.DataModel.IsListLoop;
+            this.Config.IsSingleLoop = this.DataModel.IsSingleLoop;
             this.Config.IsStretchMode = (chkStretchMode_MenuItem.IsChecked == true);
             Config.VolumnBgWidth = DataModel.VolumnBgWidth;
             Config.PlayList.AddRange(this.DataModel.PlayList);

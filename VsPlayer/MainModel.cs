@@ -327,6 +327,43 @@ namespace VsPlayer
             }
         }
 
+        bool _IsSingleLoop;
+        public bool IsSingleLoop
+        {
+            get
+            {
+                return _IsSingleLoop;
+            }
+            set
+            {
+                if (_IsSingleLoop != value)
+                {
+                    _IsSingleLoop = value;
+                    if (value)
+                        this.IsListLoop = false;
+                    this.OnPropertyChange("IsSingleLoop");
+                }
+            }
+        }
+        bool _IsListLoop;
+        public bool IsListLoop
+        {
+            get
+            {
+                return _IsListLoop;
+            }
+            set
+            {
+                if (_IsListLoop != value)
+                {
+                    _IsListLoop = value;
+                    if (value)
+                        this.IsSingleLoop = false;
+                    this.OnPropertyChange("IsListLoop");
+                }
+            }
+        }
+
         public ObservableCollection<PlayListItemModel> PlayList
         {
             get;

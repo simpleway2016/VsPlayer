@@ -49,6 +49,10 @@
                                     </MenuItem>
                                     <MenuItem Header="自动设置上一次音量值" IsCheckable="True" IsChecked="{Binding IsSetLastTimeVolume}"/>
                                     <MenuItem Header="拉伸视频模式" IsCheckable="True" IsChecked="{Binding IsVideoStretchMode}" x:Name="menuVideoStretchMode" Checked="menuVideoStretchMode_Checked" Unchecked="menuVideoStretchMode_Checked"/>
+                                    <MenuItem Header="循环播放">
+                                        <MenuItem Header="单曲循环" IsCheckable="True" IsChecked="{Binding IsSingleLoop}"/>
+                                        <MenuItem Header="列表循环" IsCheckable="True" IsChecked="{Binding IsListLoop}"/>
+                                    </MenuItem>
                                 </ContextMenu>
                             </ListBox.ContextMenu>
                             <ListBox.ItemTemplate>

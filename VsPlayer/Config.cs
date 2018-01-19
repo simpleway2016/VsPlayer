@@ -14,6 +14,8 @@ namespace VsPlayer
         public bool IsStretchMode;
         public bool IsVideoStretchMode;
         public bool IsSetLastTimeVolume;
+        public bool IsSingleLoop;
+        public bool IsListLoop;
         public List<PlayListItemModel> PlayList = new List<PlayListItemModel>();
         public List<PlayListItemModel> BackgroundList = new List<PlayListItemModel>();
         public static Config GetInstance()
