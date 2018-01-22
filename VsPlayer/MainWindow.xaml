@@ -59,6 +59,9 @@
                                 <DataTemplate>
                                     <Grid Width="{Binding Path=DataContext.PlayerListWidth,RelativeSource={  RelativeSource  Mode=FindAncestor, AncestorType={x:Type ListBox}}}">
                                         <TextBlock HorizontalAlignment="Left" Background="{Binding BgColor}" Foreground="{Binding FontColor}" Text="{Binding Text}"></TextBlock>
+                                        <Grid MouseDown="btnPlayItem_MouseDown" Cursor="Hand" Width="23" Background="Transparent" HorizontalAlignment="Right" Margin="0,0,20,0">
+                                            <Image Source="/images/play.png" Width="8" Height="10"></Image>
+                                        </Grid>
                                         <TextBlock Text="X" x:Name="btnDelItem" ToolTip="删除" MouseDown="btnDelItem_MouseDown" Cursor="Hand" Foreground="#999" HorizontalAlignment="Right" Margin="0,0,5,0"></TextBlock>
                                     </Grid>
                                 </DataTemplate>
@@ -89,7 +92,7 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Width="{Binding Path=DataContext.BackgroundListWidth,RelativeSource={  RelativeSource  Mode=FindAncestor, AncestorType={x:Type ListBox}}}">
-                                        <TextBlock HorizontalAlignment="Left" Background="{Binding BgColor}" Foreground="{Binding FontColor}" Text="{Binding Text}"></TextBlock>
+                                        <TextBlock HorizontalAlignment="Left" Background="{Binding BgColor}" Foreground="{Binding FontColor}" Text="{Binding Text}"></TextBlock>                                       
                                         <TextBlock Text="X" x:Name="btnDelItem" ToolTip="删除" MouseDown="btnDelItem_MouseDown" Cursor="Hand" Foreground="#999" HorizontalAlignment="Right" Margin="0,0,5,0"></TextBlock>
                                     </Grid>
                                 </DataTemplate>
@@ -129,10 +132,10 @@
                             </Grid>
                             <Grid VerticalAlignment="Bottom" Height="32">
                                 <StackPanel Orientation="Horizontal">
-                                    <Grid x:Name="btnPlay" MouseDown="btnPlay_MouseDown" Cursor="Hand" Width="20" Height="20" HorizontalAlignment="Left" Margin="8,6,0,6">
+                                    <Grid x:Name="btnPlay" Background="Transparent" MouseDown="btnPlay_MouseDown" Cursor="Hand" Width="20" Height="20" HorizontalAlignment="Left" Margin="8,6,0,6">
                                         <Image Source="{Binding PlayButtonImage}" Width="11" Height="12"></Image>
                                     </Grid>
-                                    <Grid x:Name="btnStop" MouseDown="btnStop_MouseDown" Cursor="Hand" Width="20" Height="20" HorizontalAlignment="Left" Margin="5,6,0,6">
+                                    <Grid x:Name="btnStop" Background="Transparent" MouseDown="btnStop_MouseDown" Cursor="Hand" Width="20" Height="20" HorizontalAlignment="Left" Margin="5,6,0,6">
                                         <Rectangle Fill="#edeff4" Width="8" Height="8"></Rectangle>
                                     </Grid>
                                     <Grid Margin="10,0,0,0" Width="51">

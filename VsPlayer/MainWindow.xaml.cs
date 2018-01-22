@@ -438,18 +438,23 @@ namespace VsPlayer
             var model = listboxitem.DataContext as PlayListItemModel;
             model.BgColor = null;
         }
-
+        private void btnPlayItem_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var data = ((FrameworkElement)sender).DataContext as PlayListItemModel;
+            data.IsSelected = true;
+            btnPlay_MouseDown(null, null);
+        }
         private void btnPlay_MouseDown(object sender, MouseButtonEventArgs e)
         {
 
             try
             {
-                if (this.DataModel.State == PlayState.Playing)
+                if (this.DataModel.State == PlayState.Playing && sender != null)
                 {
                     this._videoForm.Player.Pause();
                     this.DataModel.State = PlayState.Paused;
                 }
-                else if (this.DataModel.State == PlayState.Paused)
+                else if (this.DataModel.State == PlayState.Paused && sender != null)
                 {
                     this._videoForm.Player.Play();
                     this.DataModel.State = PlayState.Playing;
