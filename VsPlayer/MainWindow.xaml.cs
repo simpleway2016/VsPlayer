@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -211,8 +212,23 @@ namespace VsPlayer
         {
             if (sizeInfo != null)
                 base.OnRenderSizeChanged(sizeInfo);
-            this.DataModel.PlayerListWidth = lstPlayList.ActualWidth - 10;
-            this.DataModel.BackgroundListWidth = lstPicture.ActualWidth - 15;
+
+            var bs = lstPlayList.GetChildsByName<ScrollBar>(null).FirstOrDefault(m=>m.Orientation ==  Orientation.Vertical);
+            double more = 0;
+            if(bs != null && bs.IsVisible)
+            {
+                //滚动条出现了
+                more = bs.ActualWidth;
+            }
+            this.DataModel.PlayerListWidth = lstPlayList.ActualWidth - 10  - more;
+
+            bs = lstPicture.GetChildsByName<ScrollBar>(null).FirstOrDefault(m => m.Orientation == Orientation.Vertical);
+            more = 0;
+            if (bs != null && bs.IsVisible)
+            {
+                more = bs.ActualWidth;
+            }
+            this.DataModel.BackgroundListWidth = lstPicture.ActualWidth - 15 - more;
         }
         private void _keyHook_OnKeyDownEvent(object sender, WayControls.Windows.Hook.WayKeyEventArgs e)
         {
@@ -354,56 +370,58 @@ namespace VsPlayer
         }
         private void ListBoxItem_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
-            if (e.ClickCount == 2)
+            if (e.ChangedButton == MouseButton.Left)
             {
-                var curFileObj = this.DataModel.PlayList.FirstOrDefault(m => m.IsSelected);
-                if (curFileObj == null)
+                if (e.ClickCount == 2)
+                {
+                    var curFileObj = this.DataModel.PlayList.FirstOrDefault(m => m.IsSelected);
+                    if (curFileObj == null)
+                        return;
+
+                    if (this.DataModel.State != PlayState.Stopped)
+                    {
+                        _videoForm.Player.Stop();
+                        this.DataModel.State = PlayState.Stopped;
+                        rememberHistory();
+                    }
+
+                    try
+                    {
+                        long filelen = new System.IO.FileInfo(curFileObj.FilePath).Length;
+                        string filename = System.IO.Path.GetFileName(curFileObj.FilePath);
+                        var historyItem = HistoryItems.FirstOrDefault(m => m.FileLength == filelen && string.Equals(m.FileName, filename, StringComparison.CurrentCultureIgnoreCase));
+                        if (historyItem != null)
+                        {
+                            if (historyItem.Volume != null && this.DataModel.IsSetLastTimeVolume)
+                            {
+                                this.DataModel.SetVolume(historyItem.Volume.Value);
+                                _videoForm.Player.SetVolume(historyItem.Volume.Value);
+                            }
+                            _videoForm.Player.CurrentAudioStreamIndex = historyItem.AudioStreamIndex;
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                    _lastPlayingModel = curFileObj;
+                    try
+                    {
+                        this._videoForm.Player.Open(curFileObj.FilePath);
+                        this.DataModel.State = PlayState.Playing;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(this, ex.Message);
+                    }
                     return;
 
-                if (this.DataModel.State != PlayState.Stopped)
-                {
-                    _videoForm.Player.Stop();
-                    this.DataModel.State = PlayState.Stopped;
-                    rememberHistory();
                 }
-
-                try
-                {
-                    long filelen = new System.IO.FileInfo(curFileObj.FilePath).Length;
-                    string filename = System.IO.Path.GetFileName(curFileObj.FilePath);
-                    var historyItem = HistoryItems.FirstOrDefault(m => m.FileLength == filelen && string.Equals(m.FileName, filename, StringComparison.CurrentCultureIgnoreCase));
-                    if (historyItem != null)
-                    {
-                        if (historyItem.Volume != null && this.DataModel.IsSetLastTimeVolume)
-                        {
-                            this.DataModel.SetVolume(historyItem.Volume.Value);
-                            _videoForm.Player.SetVolume(historyItem.Volume.Value);
-                        }
-                        _videoForm.Player.CurrentAudioStreamIndex = historyItem.AudioStreamIndex;
-                    }
-                }
-                catch
-                {
-
-                }
-                _lastPlayingModel = curFileObj;
-                try
-                {
-                    this._videoForm.Player.Open(curFileObj.FilePath);
-                    this.DataModel.State = PlayState.Playing;
-                }
-                catch(Exception ex)
-                {
-                    MessageBox.Show(this ,ex.Message);
-                }
-                return;
-
+                ListBoxItem listboxitem = sender as ListBoxItem;
+                var model = listboxitem.DataContext as PlayListItemModel;
+                model.IsSelected = true;
+                DragDrop.DoDragDrop(listboxitem, model, DragDropEffects.Move);
             }
-            ListBoxItem listboxitem = sender as ListBoxItem;
-            var model = listboxitem.DataContext as PlayListItemModel;
-            model.IsSelected = true;
-            DragDrop.DoDragDrop(listboxitem, model, DragDropEffects.Move);
         }
         private void ListBoxItem_DragEnter(object sender, DragEventArgs e)
         {
@@ -702,13 +720,19 @@ namespace VsPlayer
             if (lstPicture.SelectedIndex < 0)
                 return;
             var model = lstPicture.SelectedItem as PlayListItemModel;
+            var old = _videoForm.pictureBox.Image;
+           
             try
             {
                 _videoForm.pictureBox.Image = System.Drawing.Bitmap.FromFile(model.FilePath);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, ex.Message);
+                _videoForm.pictureBox.Image = null;
+            }
+            if (old != null)
+            {
+                old.Dispose();
             }
         }
 

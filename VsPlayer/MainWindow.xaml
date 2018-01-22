@@ -74,7 +74,7 @@
                             </ListBox.ItemContainerStyle>
                         </ListBox>
                         <GridSplitter Width="5" Background="#36363a" VerticalAlignment="Stretch" HorizontalAlignment="Right"></GridSplitter>
-                        <ListBox x:Name="lstPicture" AllowDrop="True" ItemsSource="{Binding BackgroundList}" Drop="lstPicture_Drop" SelectionChanged="lstPicture_SelectionChanged" Background="Transparent" BorderThickness="0" Grid.Column="1">
+                        <ListBox x:Name="lstPicture" AllowDrop="True" ItemsSource="{Binding BackgroundList}" Style="{StaticResource MyListBoxStyle}"  Drop="lstPicture_Drop" SelectionChanged="lstPicture_SelectionChanged" Background="Transparent" BorderThickness="0" Grid.Column="1">
                             <ListBox.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem Header="添加背景文件..." Click="AddPic_MenuItem_Click">
