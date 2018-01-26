@@ -59,7 +59,10 @@ namespace VsPlayer
             {
                 if (this.Continer == null)
                     return null;
-                return $"{(this.Continer.IndexOf(this) + 1)}.{this.Name}";
+                if(MainWindow.instance.DataModel.ShowSerialNumber)
+                    return $"{(this.Continer.IndexOf(this) + 1)}.{this.Name}";
+                else
+                    return this.Name;
             }
         }
 

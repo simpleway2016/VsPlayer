@@ -27,7 +27,7 @@ namespace VsPlayer
     public partial class MainWindow : Window
     {
 
-
+        public static MainWindow instance;
         [DllImport("user32.dll")]
         public static extern bool SendMessage(IntPtr hwnd, int wMsg, int wParam, int lParam);
         public const int WM_SYSCOMMAND = 0x0112;
@@ -53,6 +53,15 @@ namespace VsPlayer
 
         public MainWindow()
         {
+            instance = this;
+
+            //设置应用程序处理异常方式：ThreadException处理
+            System.Windows.Forms.Application.SetUnhandledExceptionMode( System.Windows.Forms.UnhandledExceptionMode.CatchException);
+            //处理UI线程异常
+            System.Windows.Forms.Application.ThreadException += Application_ThreadException;
+            //处理非UI线程异常
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
             InitializeComponent();
 
             //阻止系统休眠，直到线程结束恢复休眠策略
@@ -92,6 +101,7 @@ namespace VsPlayer
             this.DataModel.IsVideoStretchMode = this.Config.IsVideoStretchMode;
             this.DataModel.IsListLoop = this.Config.IsListLoop;
             this.DataModel.IsSingleLoop = this.Config.IsSingleLoop;
+            this.DataModel.ShowSerialNumber = this.Config.ShowSerialNumber;
             this.Config.PlayList.Clear();
             this.Config.BackgroundList.Clear();
             this.DataContext = DataModel;
@@ -143,6 +153,29 @@ namespace VsPlayer
             menu_audioTracks.ItemsSource = _videoForm.Player.CurrentAudioStreams;
             OnRenderSizeChanged(null);
         }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            if(e.ExceptionObject != null)
+            {
+                var ex = e.ExceptionObject as Exception;
+                if(ex != null)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
+            saveConfig();
+        }
+
+        private void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
+        {
+            if (e.Exception != null)
+            {
+                MessageBox.Show(e.Exception.Message);
+            }
+            saveConfig();
+        }
+
         PlayListItemModel _lastPlayingModel = null;
         void rememberHistory(bool otherThreadSave = true)
         {
@@ -268,7 +301,7 @@ namespace VsPlayer
             }
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        void saveConfig()
         {
             Config.WindowWidth = this.Width;
             Config.WindowHeight = this.Height;
@@ -276,11 +309,17 @@ namespace VsPlayer
             this.Config.IsSetLastTimeVolume = this.DataModel.IsSetLastTimeVolume;
             this.Config.IsListLoop = this.DataModel.IsListLoop;
             this.Config.IsSingleLoop = this.DataModel.IsSingleLoop;
+            this.Config.ShowSerialNumber = this.DataModel.ShowSerialNumber;
             this.Config.IsStretchMode = (chkStretchMode_MenuItem.IsChecked == true);
             Config.VolumnBgWidth = DataModel.VolumnBgWidth;
             Config.PlayList.AddRange(this.DataModel.PlayList);
             Config.BackgroundList.AddRange(this.DataModel.BackgroundList);
             Config.Save();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            saveConfig();
 
             if (this.DataModel.State != PlayState.Stopped)
             {
@@ -407,6 +446,7 @@ namespace VsPlayer
                     _lastPlayingModel = curFileObj;
                     try
                     {
+                        txtPlaying.Text = System.IO.Path.GetFileName(curFileObj.FilePath);
                         this._videoForm.Player.Open(curFileObj.FilePath);
                         this.DataModel.State = PlayState.Playing;
                     }
@@ -438,11 +478,14 @@ namespace VsPlayer
             var model = listboxitem.DataContext as PlayListItemModel;
             model.BgColor = null;
         }
+
         private void btnPlayItem_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            var data = ((FrameworkElement)sender).DataContext as PlayListItemModel;
+            Grid grid = ((Grid)sender);
+            var data = grid.DataContext as PlayListItemModel;
             data.IsSelected = true;
             btnPlay_MouseDown(null, null);
+
         }
         private void btnPlay_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -488,7 +531,8 @@ namespace VsPlayer
                     }
 
                     _lastPlayingModel = curFileObj;
-                    try { 
+                    try {
+                        txtPlaying.Text = System.IO.Path.GetFileName( curFileObj.FilePath);
                         this._videoForm.Player.Open(curFileObj.FilePath);
                         this.DataModel.State = PlayState.Playing;
                     }
@@ -566,8 +610,15 @@ namespace VsPlayer
             if (_mouseVolumnDownX >= 0)
             {
                 areaVolumn.CaptureMouse();
-                this.DataModel.VolumnBgWidth = (int)_mouseVolumnDownX;
-                _videoForm.Player.SetVolume(this.DataModel.Volumn);
+                try
+                {
+                    this.DataModel.VolumnBgWidth = (int)_mouseVolumnDownX;
+                    _videoForm.Player.SetVolume(this.DataModel.Volumn);
+                }
+                catch
+                {
+
+                }
             }
         }
 
@@ -640,27 +691,27 @@ namespace VsPlayer
             }
         }
 
-        char[] titleArr = new char[] { 'i', 'c', 'k', 'y', '\'' };
+        //char[] titleArr = new char[] { 'i', 'c', 'k', 'y', '\'' };
         private void txtTitle_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (txtTitle.Text == "VsPlayer")
-            {
-                txtTitle.Text = "VsPlayer ";
-                Task.Run(() =>
-                {
-                    StringBuilder buffer = new StringBuilder();
-                    for (int i = 0; i < titleArr.Length; i++)
-                    {
+            //if (txtTitle.Text == "VsPlayer")
+            //{
+            //    txtTitle.Text = "VsPlayer ";
+            //    Task.Run(() =>
+            //    {
+            //        StringBuilder buffer = new StringBuilder();
+            //        for (int i = 0; i < titleArr.Length; i++)
+            //        {
 
-                        buffer.Append(titleArr[i]);
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            txtTitle.Text = $"V{buffer}s Player";
-                        });
-                        Thread.Sleep(100);
-                    }
-                });
-            }
+            //            buffer.Append(titleArr[i]);
+            //            this.Dispatcher.Invoke(() =>
+            //            {
+            //                txtTitle.Text = $"V{buffer}s Player";
+            //            });
+            //            Thread.Sleep(100);
+            //        }
+            //    });
+            //}
         }
 
         private void lstPicture_Drop(object sender, DragEventArgs e)

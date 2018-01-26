@@ -16,6 +16,7 @@ namespace VsPlayer
         public bool IsSetLastTimeVolume;
         public bool IsSingleLoop;
         public bool IsListLoop;
+        public bool ShowSerialNumber = true;
         public List<PlayListItemModel> PlayList = new List<PlayListItemModel>();
         public List<PlayListItemModel> BackgroundList = new List<PlayListItemModel>();
         public static Config GetInstance()

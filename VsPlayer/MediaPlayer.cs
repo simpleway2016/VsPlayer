@@ -250,34 +250,65 @@ namespace VsPlayer
         public void Open(string file)
         {
             this.HasVideo = false;
-            _mediaBuilder.OpenFile(file, true);
+
+            if (_mediaBuilder != null)
+                _mediaBuilder.OpenFile(file, true);
         }
         public void Stop()
         {
             _streamSelect = null;
-            _mediaBuilder.Stop();
+
+            if (_mediaBuilder != null)
+                _mediaBuilder.Stop();
         }
 
         public void SetPosition(double positon)
         {
-            _mediaBuilder.SetPosition(positon);
+            if (_mediaBuilder != null)
+                _mediaBuilder.SetPosition(positon);
         }
         public double GetCurrentPosition()
         {
-            return _mediaBuilder.GetCurrentPosition();
+            if (_mediaBuilder != null)
+                return _mediaBuilder.GetCurrentPosition();
+            else
+                return 0;
         }
         public int GetVolume()
         {
-            return _mediaBuilder.Volumn;
+            try
+            {
+                if (_mediaBuilder != null)
+                    return _mediaBuilder.Volumn;
+                else
+                    return 0;
+            }
+            catch
+            {
+                return 0;
+            }
         }
         public void SetVolume(int volume)
         {
-            _mediaBuilder.Volumn = volume;
+            if (_mediaBuilder != null)
+            {
+                try
+                {
+                    _mediaBuilder.Volumn = volume;
+                }
+                catch
+                {
+
+                }
+            }
         }
 
         public double GetDuration()
         {
-            return _mediaBuilder.GetDuration();
+            if (_mediaBuilder != null)
+                return _mediaBuilder.GetDuration();
+            else
+                return 0;
         }
     }
 }

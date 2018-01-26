@@ -251,7 +251,12 @@ namespace VsPlayer
                 {
                     _VolumnBgWidth = value;
                     this.VolumnPointLocation = new Thickness( value - 3 , 7,0,0);
-                    this.Volumn = volumes[(int)((volumes.Count - 1) * (value / 77.0))];
+                    int index = (int)((volumes.Count - 1) * (value / 77.0));
+                    if (index < 0)
+                        index = 0;
+                    else if (index >= volumes.Count)
+                        index = volumes.Count - 1;
+                    this.Volumn = volumes[index];
                     this.OnPropertyChange("VolumnBgWidth");
                 }
             }
@@ -323,6 +328,32 @@ namespace VsPlayer
                 {
                     _PlayingPercentText2 = value;
                     this.OnPropertyChange("PlayingPercentText2");
+                }
+            }
+        }
+
+        
+            bool _ShowSerialNumber;
+        public bool ShowSerialNumber
+        {
+            get
+            {
+                return _ShowSerialNumber;
+            }
+            set
+            {
+                if (_ShowSerialNumber != value)
+                {
+                    _ShowSerialNumber = value;
+                    this.OnPropertyChange("ShowSerialNumber");
+                    foreach( var item in this.PlayList )
+                    {
+                        item.OnPropertyChange("Text");
+                    }
+                    foreach (var item in this.BackgroundList)
+                    {
+                        item.OnPropertyChange("Text");
+                    }
                 }
             }
         }
