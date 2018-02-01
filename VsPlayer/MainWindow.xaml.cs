@@ -112,7 +112,7 @@ namespace VsPlayer
                 this.DataModel.State = PlayState.Stopped;
                 rememberHistory();
                 _videoForm.Player.CurrentAudioStreamIndex = 0;
-                if (this.DataModel.IsSingleLoop)
+                if (this.DataModel.IsSingleLoop || ((PlayListItemModel)lstPlayList.SelectedItem).IsLoop )
                 {
                     btnPlay_MouseDown(null, null);
                 }
@@ -127,14 +127,7 @@ namespace VsPlayer
                         catch { }
                         btnPlay_MouseDown(null, null);
                     }
-                    else
-                    {
-                        try
-                        {
-                            lstPlayList.SelectedIndex = lstPlayList.SelectedIndex + 1;
-                        }
-                        catch { }
-                    }
+                    
                 }
             };
             _videoForm.Show();
@@ -605,20 +598,31 @@ namespace VsPlayer
         private void areaVolumn_MouseDown(object sender, MouseButtonEventArgs e)
         {
             e.Handled = true;
-
-            _mouseVolumnDownX = e.GetPosition(areaVolumn).X;
-            if (_mouseVolumnDownX >= 0)
+            if (e.ChangedButton == MouseButton.Left)
             {
-                areaVolumn.CaptureMouse();
+                _mouseVolumnDownX = e.GetPosition(areaVolumn).X;
+                if (_mouseVolumnDownX >= 0)
+                {
+                    areaVolumn.CaptureMouse();
+                    try
+                    {
+                        this.DataModel.VolumnBgWidth = (int)_mouseVolumnDownX;
+                        _videoForm.Player.SetVolume(this.DataModel.Volumn);
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+            else if(e.ChangedButton == MouseButton.Right)
+            {
                 try
                 {
-                    this.DataModel.VolumnBgWidth = (int)_mouseVolumnDownX;
-                    _videoForm.Player.SetVolume(this.DataModel.Volumn);
+                    this.DataModel.VolumnBgWidth = 50;
                 }
-                catch
-                {
-
-                }
+                catch { }
+                _videoForm.Player.SetVolume(this.DataModel.Volumn);
             }
         }
 
@@ -878,6 +882,12 @@ namespace VsPlayer
         private void menuVideoStretchMode_Checked(object sender, RoutedEventArgs e)
         {
             _videoForm.Player.IsVideoStretchMode = this.DataModel.IsVideoStretchMode;
+        }
+
+        private void chkLoop_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            CheckBox chk = sender as CheckBox;
+            chk.IsChecked = !(chk.IsChecked.Value);
         }
     }
 }

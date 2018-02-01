@@ -99,6 +99,27 @@ namespace VsPlayer
                 }
             }
         }
+
+        bool _IsLoop;
+        /// <summary>
+        /// 循环播放
+        /// </summary>
+        public bool IsLoop
+        {
+            get
+            {
+                return _IsLoop;
+            }
+            set
+            {
+                if (_IsLoop != value)
+                {
+                    _IsLoop = value;
+                    OnPropertyChange("IsLoop");
+                }
+            }
+        }
+
         [Newtonsoft.Json.JsonIgnore]
         public ObservableCollection<PlayListItemModel> Continer;
         public PlayListItemModel()

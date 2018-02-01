@@ -61,10 +61,11 @@
                                 <DataTemplate>
                                     <Grid Width="{Binding Path=DataContext.PlayerListWidth,RelativeSource={  RelativeSource  Mode=FindAncestor, AncestorType={x:Type ListBox}}}">
                                         <TextBlock HorizontalAlignment="Left" Background="{Binding BgColor}" Foreground="{Binding FontColor}" Text="{Binding Text}"></TextBlock>
-                                        <Grid PreviewMouseDown="btnPlayItem_MouseDown" Cursor="Hand" Width="23" Background="Transparent" HorizontalAlignment="Right" Margin="0,0,20,0">
+                                        <!--<Grid PreviewMouseDown="btnPlayItem_MouseDown" Cursor="Hand" Width="23" Background="Transparent" HorizontalAlignment="Right" Margin="0,0,20,0">
                                             <Path IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="White" Data="M 0,0 L 0,10 L 8,5 L 0,0"></Path>
-                                        </Grid>
+                                        </Grid>-->
                                         <TextBlock Text="X" x:Name="btnDelItem" ToolTip="删除" MouseDown="btnDelItem_MouseDown" Cursor="Hand" Foreground="#999" HorizontalAlignment="Right" Margin="0,0,5,0"></TextBlock>
+                                        <CheckBox Content="循环播放" x:Name="chkLoop" PreviewMouseDown="chkLoop_PreviewMouseDown" IsChecked="{Binding IsLoop,Mode=TwoWay}" Foreground="#999" HorizontalAlignment="Right" Margin="0,0,25,0"></CheckBox>
                                     </Grid>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
