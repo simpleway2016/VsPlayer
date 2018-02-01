@@ -970,7 +970,29 @@ namespace VsPlayer
                 this.DataModel.VolumnBgWidth = value;
             }
             catch { }
-            _videoForm.Player.SetVolume(this.DataModel.Volumn);
+
+            if (this.DataModel.IsAutoMuteVolumeOnStop)
+            {
+                var originalVolume = this._videoForm.Player.GetVolume();
+                //逐渐减少音量
+                try
+                {
+
+                    var eachVolume = (-this.DataModel.Volumn + originalVolume) / 100;
+                    var nowVolume = originalVolume;
+                    for (int i = 0; i < 100; i++)
+                    {
+                        nowVolume -= eachVolume;
+                        this._videoForm.Player.SetVolume(nowVolume);
+                        Thread.Sleep(10);
+                    }
+                }
+                catch { }
+            }
+            else
+            {
+                this._videoForm.Player.SetVolume(this.DataModel.Volumn);
+            }
         }
 
         private void VolumeMenu_ContextMenuOpened(object sender, RoutedEventArgs e)
