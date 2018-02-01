@@ -37,6 +37,14 @@ namespace VsPlayer
         public void Save()
         {
             string json = Newtonsoft.Json.JsonConvert.SerializeObject(this);
+            try
+            {
+                System.IO.File.Delete(AppDomain.CurrentDomain.BaseDirectory + "config.json");
+            }
+            catch
+            {
+
+            }
             System.IO.File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "config.json", json, System.Text.Encoding.UTF8);
         }
     }

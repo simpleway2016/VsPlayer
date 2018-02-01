@@ -113,8 +113,9 @@ namespace VsPlayer
                 this.DataModel.State = PlayState.Stopped;
                 rememberHistory();
                 _videoForm.Player.CurrentAudioStreamIndex = 0;
-                if (this.DataModel.IsSingleLoop || ((PlayListItemModel)lstPlayList.SelectedItem).IsLoop )
+                if (this.DataModel.IsSingleLoop || (_lastPlayingModel != null && _lastPlayingModel.IsLoop) )
                 {
+                    lstPlayList.SelectedItem = _lastPlayingModel;
                     btnPlay_MouseDown(null, null);
                 }
                 else
@@ -145,7 +146,7 @@ namespace VsPlayer
             _keyHook.Start((int)WayControls.Windows.API.GetCurrentThreadId());
 
             menu_audioTracks.ItemsSource = _videoForm.Player.CurrentAudioStreams;
-            OnRenderSizeChanged(null);
+            lstPlayList_SizeChanged(null, null);
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -235,28 +236,7 @@ namespace VsPlayer
                 }
             }
         }
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
-        {
-            if (sizeInfo != null)
-                base.OnRenderSizeChanged(sizeInfo);
-
-            var bs = lstPlayList.GetChildsByName<ScrollBar>(null).FirstOrDefault(m=>m.Orientation ==  Orientation.Vertical);
-            double more = 0;
-            if(bs != null && bs.IsVisible)
-            {
-                //滚动条出现了
-                more = bs.ActualWidth;
-            }
-            this.DataModel.PlayerListWidth = lstPlayList.ActualWidth - 10  - more;
-
-            bs = lstPicture.GetChildsByName<ScrollBar>(null).FirstOrDefault(m => m.Orientation == Orientation.Vertical);
-            more = 0;
-            if (bs != null && bs.IsVisible)
-            {
-                more = bs.ActualWidth;
-            }
-            this.DataModel.BackgroundListWidth = lstPicture.ActualWidth - 15 - more;
-        }
+       
         private void _keyHook_OnKeyDownEvent(object sender, WayControls.Windows.Hook.WayKeyEventArgs e)
         {
             if (e.KeyCode == System.Windows.Forms.Keys.Up)
@@ -1003,6 +983,26 @@ namespace VsPlayer
                 var value = Convert.ToInt32(77 * Convert.ToDouble(menuitem.Header.ToString().Replace("%", "")) / 100);
                 menuitem.IsChecked = this.DataModel.VolumnBgWidth == value;
             }
+        }
+
+        private void lstPlayList_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            var bs = lstPlayList.GetChildsByName<ScrollBar>(null).FirstOrDefault(m => m.Orientation == Orientation.Vertical);
+            double more = 0;
+            if (bs != null && bs.IsVisible)
+            {
+                //滚动条出现了
+                more = bs.ActualWidth;
+            }
+            this.DataModel.PlayerListWidth = lstPlayList.ActualWidth - 10 - more;
+
+            bs = lstPicture.GetChildsByName<ScrollBar>(null).FirstOrDefault(m => m.Orientation == Orientation.Vertical);
+            more = 0;
+            if (bs != null && bs.IsVisible)
+            {
+                more = bs.ActualWidth;
+            }
+            this.DataModel.BackgroundListWidth = lstPicture.ActualWidth - 15 - more;
         }
     }
 }
