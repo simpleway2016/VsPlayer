@@ -376,6 +376,25 @@ namespace VsPlayer
                 }
             }
         }
+
+        
+        bool _IsAutoMuteVolumeOnStop;
+        public bool IsAutoMuteVolumeOnStop
+        {
+            get
+            {
+                return _IsAutoMuteVolumeOnStop;
+            }
+            set
+            {
+                if (_IsAutoMuteVolumeOnStop != value)
+                {
+                    _IsAutoMuteVolumeOnStop = value;
+                    this.OnPropertyChange("IsAutoMuteVolumeOnStop");
+                }
+            }
+        }
+
         bool _IsListLoop;
         public bool IsListLoop
         {

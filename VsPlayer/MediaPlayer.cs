@@ -259,7 +259,9 @@ namespace VsPlayer
             _streamSelect = null;
 
             if (_mediaBuilder != null)
+            {
                 _mediaBuilder.Stop();
+            }
         }
 
         public void SetPosition(double positon)

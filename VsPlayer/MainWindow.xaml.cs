@@ -101,6 +101,7 @@ namespace VsPlayer
             this.DataModel.IsVideoStretchMode = this.Config.IsVideoStretchMode;
             this.DataModel.IsListLoop = this.Config.IsListLoop;
             this.DataModel.IsSingleLoop = this.Config.IsSingleLoop;
+            this.DataModel.IsAutoMuteVolumeOnStop = this.Config.IsAutoMuteVolumeOnStop;
             this.DataModel.ShowSerialNumber = this.Config.ShowSerialNumber;
             this.Config.PlayList.Clear();
             this.Config.BackgroundList.Clear();
@@ -303,6 +304,7 @@ namespace VsPlayer
             this.Config.IsListLoop = this.DataModel.IsListLoop;
             this.Config.IsSingleLoop = this.DataModel.IsSingleLoop;
             this.Config.ShowSerialNumber = this.DataModel.ShowSerialNumber;
+            this.Config.IsAutoMuteVolumeOnStop = this.DataModel.IsAutoMuteVolumeOnStop;
             this.Config.IsStretchMode = (chkStretchMode_MenuItem.IsChecked == true);
             Config.VolumnBgWidth = DataModel.VolumnBgWidth;
             Config.PlayList.AddRange(this.DataModel.PlayList);
@@ -547,8 +549,31 @@ namespace VsPlayer
             {
                 if (this.DataModel.State != PlayState.Stopped)
                 {
+                    int originalVolume = 0;
+                    if (this.DataModel.IsAutoMuteVolumeOnStop)
+                    {
+                        originalVolume = this._videoForm.Player.GetVolume();
+                        //先逐渐减少音量
+                        try
+                        {
+
+                            var eachVolume = (10000 + originalVolume) / 200;
+                            var nowVolume = originalVolume;
+                            for (int i = 0; i < 200; i++)
+                            {
+                                nowVolume -= eachVolume;
+                                this._videoForm.Player.SetVolume(nowVolume);
+                                Thread.Sleep(10);
+                            }
+                        }
+                        catch { }
+                    }
                     this._videoForm.Player.Stop();
                     this.DataModel.State = PlayState.Stopped;
+                    if (this.DataModel.IsAutoMuteVolumeOnStop)
+                    {
+                        this._videoForm.Player.SetVolume(originalVolume);
+                    }
                     rememberHistory();
                 }
 
@@ -617,12 +642,7 @@ namespace VsPlayer
             }
             else if(e.ChangedButton == MouseButton.Right)
             {
-                try
-                {
-                    this.DataModel.VolumnBgWidth = 50;
-                }
-                catch { }
-                _videoForm.Player.SetVolume(this.DataModel.Volumn);
+               
             }
         }
 
@@ -784,7 +804,10 @@ namespace VsPlayer
            
             try
             {
-                _videoForm.pictureBox.Image = System.Drawing.Bitmap.FromFile(model.FilePath);
+                using (System.IO.FileStream fs = System.IO.File.OpenRead(model.FilePath))
+                {
+                    _videoForm.pictureBox.Image = System.Drawing.Bitmap.FromStream(fs);
+                }
             }
             catch (Exception ex)
             {
@@ -888,6 +911,76 @@ namespace VsPlayer
         {
             CheckBox chk = sender as CheckBox;
             chk.IsChecked = !(chk.IsChecked.Value);
+        }
+
+        private void ChangeFileName_Click(object sender, RoutedEventArgs e)
+        {
+            PlayListItemModel data = lstPlayList.SelectedItem as PlayListItemModel;
+            if (data == null)
+                return;
+            Dialogs.InputBox frm = new Dialogs.InputBox("请输入新名称" , "");
+            frm.Owner = this;
+            frm.Value = System.IO.Path.GetFileName(data.FilePath);
+            if (frm.ShowDialog() == true)
+            {
+                try
+                {
+                    var filepath = System.IO.Path.GetDirectoryName(data.FilePath) + "\\" + frm.Value;
+                    System.IO.File.Move(data.FilePath, filepath);
+                    data.FilePath = filepath;
+                    saveConfig();
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(this, ex.Message);
+                }
+            }
+        }
+
+        private void ChangePicName_Click(object sender, RoutedEventArgs e)
+        {
+            PlayListItemModel data = lstPicture.SelectedItem as PlayListItemModel;
+            if (data == null)
+                return; 
+            Dialogs.InputBox frm = new Dialogs.InputBox("请输入新名称", "");
+            frm.Owner = this;
+            frm.Value = System.IO.Path.GetFileName(data.FilePath);
+            if (frm.ShowDialog() == true)
+            {
+                try
+                {
+                    var filepath = System.IO.Path.GetDirectoryName(data.FilePath) + "\\" + frm.Value;
+                    System.IO.File.Move(data.FilePath, filepath);
+                    data.FilePath = filepath;
+                    saveConfig();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(this, ex.Message);
+                }
+            }
+        }
+
+        private void VolumeMenu_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuitem = sender as MenuItem;
+            var value = Convert.ToInt32( 77 * Convert.ToDouble(menuitem.Header.ToString().Replace("%", "")) / 100);
+            try
+            {
+                this.DataModel.VolumnBgWidth = value;
+            }
+            catch { }
+            _videoForm.Player.SetVolume(this.DataModel.Volumn);
+        }
+
+        private void VolumeMenu_ContextMenuOpened(object sender, RoutedEventArgs e)
+        {
+            ContextMenu menu = sender as ContextMenu;
+            foreach (MenuItem menuitem in menu.Items)
+            {
+                var value = Convert.ToInt32(77 * Convert.ToDouble(menuitem.Header.ToString().Replace("%", "")) / 100);
+                menuitem.IsChecked = this.DataModel.VolumnBgWidth == value;
+            }
         }
     }
 }

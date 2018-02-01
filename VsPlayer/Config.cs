@@ -17,6 +17,7 @@ namespace VsPlayer
         public bool IsSingleLoop;
         public bool IsListLoop;
         public bool ShowSerialNumber = true;
+        public bool IsAutoMuteVolumeOnStop = true;
         public List<PlayListItemModel> PlayList = new List<PlayListItemModel>();
         public List<PlayListItemModel> BackgroundList = new List<PlayListItemModel>();
         public static Config GetInstance()

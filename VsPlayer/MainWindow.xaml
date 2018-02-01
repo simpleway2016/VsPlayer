@@ -48,13 +48,16 @@
                                             </Style>
                                         </MenuItem.ItemContainerStyle>
                                     </MenuItem>
+                                    <MenuItem Header="手动停止时逐渐减少音量" IsCheckable="True" IsChecked="{Binding IsAutoMuteVolumeOnStop}"/>
                                     <MenuItem Header="自动设置上一次音量值" IsCheckable="True" IsChecked="{Binding IsSetLastTimeVolume}"/>
                                     <MenuItem Header="显示序号" IsCheckable="True" IsChecked="{Binding ShowSerialNumber}"/>
                                     <MenuItem Header="拉伸视频模式" IsCheckable="True" IsChecked="{Binding IsVideoStretchMode}" x:Name="menuVideoStretchMode" Checked="menuVideoStretchMode_Checked" Unchecked="menuVideoStretchMode_Checked"/>
-                                    <MenuItem Header="循环播放">
+                                    <!--<MenuItem Header="循环播放">
                                         <MenuItem Header="单曲循环" IsCheckable="True" IsChecked="{Binding IsSingleLoop}"/>
                                         <MenuItem Header="列表循环" IsCheckable="True" IsChecked="{Binding IsListLoop}"/>
-                                    </MenuItem>
+                                    </MenuItem>-->
+                                    <Separator/>
+                                    <MenuItem Header="修改文件名" Click="ChangeFileName_Click"/>
                                 </ContextMenu>
                             </ListBox.ContextMenu>
                             <ListBox.ItemTemplate>
@@ -65,6 +68,7 @@
                                             <Path IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="White" Data="M 0,0 L 0,10 L 8,5 L 0,0"></Path>
                                         </Grid>-->
                                         <TextBlock Text="X" x:Name="btnDelItem" ToolTip="删除" MouseDown="btnDelItem_MouseDown" Cursor="Hand" Foreground="#999" HorizontalAlignment="Right" Margin="0,0,5,0"></TextBlock>
+                                        
                                         <CheckBox Content="循环播放" x:Name="chkLoop" PreviewMouseDown="chkLoop_PreviewMouseDown" IsChecked="{Binding IsLoop,Mode=TwoWay}" Foreground="#999" HorizontalAlignment="Right" Margin="0,0,25,0"></CheckBox>
                                     </Grid>
                                 </DataTemplate>
@@ -90,6 +94,7 @@
                                     </MenuItem>
                                     <Separator></Separator>
                                     <MenuItem x:Name="chkStretchMode_MenuItem" Header="拉伸背景图" Click="chkStretchMode_MenuItem_Click"/>
+                                    <MenuItem Header="修改文件名" Click="ChangePicName_Click"/>
                                 </ContextMenu>
                             </ListBox.ContextMenu>
                             <ListBox.ItemTemplate>
@@ -126,6 +131,19 @@
                             <Image Margin="0,4,92,0" Source="images/sound.png" Width="15" Height="15" VerticalAlignment="Top" HorizontalAlignment="Right"></Image>
                             <Grid Width="87" HorizontalAlignment="Right">
                                 <Grid  x:Name="areaVolumn" Cursor="Hand" Background="Transparent" MouseDown="areaVolumn_MouseDown" MouseMove="areaVolumn_MouseMove" MouseUp="areaVolumn_MouseUp" Margin="0,6,10,0" Height="12" HorizontalAlignment="Left" VerticalAlignment="Top" Width="77" >
+                                    <Grid.ContextMenu>
+                                        <ContextMenu Opened="VolumeMenu_ContextMenuOpened">
+                                            <MenuItem Header="90%" Click="VolumeMenu_Click"></MenuItem>
+                                            <MenuItem Header="80%" Click="VolumeMenu_Click"></MenuItem>
+                                            <MenuItem Header="70%" Click="VolumeMenu_Click"></MenuItem>
+                                            <MenuItem Header="60%" Click="VolumeMenu_Click"></MenuItem>
+                                            <MenuItem Header="50%" Click="VolumeMenu_Click"></MenuItem>
+                                            <MenuItem Header="40%" Click="VolumeMenu_Click"></MenuItem>
+                                            <MenuItem Header="30%" Click="VolumeMenu_Click"></MenuItem>
+                                            <MenuItem Header="20%" Click="VolumeMenu_Click"></MenuItem>
+                                            <MenuItem Header="10%" Click="VolumeMenu_Click"></MenuItem>
+                                        </ContextMenu>
+                                    </Grid.ContextMenu>
                                     <Rectangle Height="4" Fill="#1a1a20"></Rectangle>
                                 </Grid>
                                 
