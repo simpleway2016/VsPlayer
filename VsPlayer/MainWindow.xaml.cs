@@ -287,7 +287,9 @@ namespace VsPlayer
             this.Config.IsAutoMuteVolumeOnStop = this.DataModel.IsAutoMuteVolumeOnStop;
             this.Config.IsStretchMode = (chkStretchMode_MenuItem.IsChecked == true);
             Config.VolumnBgWidth = DataModel.VolumnBgWidth;
+            Config.PlayList.Clear();
             Config.PlayList.AddRange(this.DataModel.PlayList);
+            Config.BackgroundList.Clear();
             Config.BackgroundList.AddRange(this.DataModel.BackgroundList);
             Config.Save();
         }
