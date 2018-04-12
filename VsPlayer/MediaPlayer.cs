@@ -8,17 +8,47 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using VideoConnectLib.Control.Encoding;
 using Way.Media;
 
 namespace VsPlayer
 {
+    public enum PlayerStatus
+    {
+        Stopped = 0,
+        Running = 1,
+        Paused = 2
+    }
     public class MediaPlayer : System.Windows.Forms.Control
     {
         public static MediaPlayer instance;
+
+        PlayerStatus _Status = PlayerStatus.Stopped;
+        public event EventHandler StatusChanged;
+        public PlayerStatus Status
+        {
+            get
+            {
+                return _Status;
+            }
+            set
+            {
+                if (_Status != value)
+                {
+                    _Status = value;
+                    if (this.StatusChanged != null)
+                        this.StatusChanged(this, null);
+                }
+            }
+        }
+        public ShowController.Models.SongItem SongItem;
         public event EventHandler PlayCompleted;
-        MediaBuilder _mediaBuilder;
+        public event EventHandler Stopped;
+        public delegate void ProgressChangedHandler(object sender, double totalSeconds, double currentSeconds);
+        public event ProgressChangedHandler ProgressChanged;
+        internal MediaBuilder _mediaBuilder;
         IMFVideoDisplayControl EvrDisplayControl;
         internal ObservableCollection<AudioStream> CurrentAudioStreams
         {
@@ -52,7 +82,7 @@ namespace VsPlayer
 
                     //_audioFilter.InputPin.Connect(pin).Throw();
                     //_audioFilter.OutputPin.Render().Throw();
-                   
+
                     //_mediaBuilder.Run();
                 }
                 catch
@@ -71,7 +101,7 @@ namespace VsPlayer
             }
             private set
             {
-                if(_HasVideo != value)
+                if (_HasVideo != value)
                 {
                     _HasVideo = value;
                 }
@@ -104,7 +134,7 @@ namespace VsPlayer
         public MediaPlayer()
         {
             instance = this;
-               _mediaBuilder = new MediaBuilder();
+            _mediaBuilder = new MediaBuilder();
             this.CurrentAudioStreams = new ObservableCollection<AudioStream>();
 
             _mediaBuilder.DoOpenFileWithSplitter += _mediaBuilder_DoOpenFileWithSplitter;
@@ -112,6 +142,32 @@ namespace VsPlayer
             _mediaBuilder.DoDecodeVideo += _mediaBuilder_DoDecodeVideo;
             _mediaBuilder.DoRenderPin += _mediaBuilder_DoRenderPin;
             _mediaBuilder.GetedEventCode += _mediaBuilder_GetedEventCode;
+
+            Task.Run(() => checkSeconds());
+        }
+
+        void checkSeconds()
+        {
+            while (true)
+            {
+                Thread.Sleep(1000);
+                if (this.Status == PlayerStatus.Running)
+                {
+                    var total = this.GetDuration();
+                    var current = this.GetCurrentPosition();
+                    if (this.ProgressChanged != null)
+                    {
+                        this.ProgressChanged(this, total, current);
+                    }
+                }
+                else if (this.Status == PlayerStatus.Stopped)
+                {
+                    if (this.ProgressChanged != null)
+                    {
+                        this.ProgressChanged(this, 0, 0);
+                    }
+                }
+            }
         }
 
         protected override void OnSizeChanged(EventArgs e)
@@ -125,6 +181,7 @@ namespace VsPlayer
         {
             if (lEventCode == EventCode.Complete)
             {
+                this.Status = PlayerStatus.Stopped;
                 _streamSelect = null;
                 if (PlayCompleted != null)
                 {
@@ -136,10 +193,12 @@ namespace VsPlayer
         public void Pause()
         {
             _mediaBuilder.Pause();
+            this.Status = PlayerStatus.Paused;
         }
         public void Play()
         {
             _mediaBuilder.Run();
+            this.Status = PlayerStatus.Running;
         }
 
         private DSFilter _mediaBuilder_DoDecodeVideo(DSPin pin)
@@ -169,7 +228,7 @@ namespace VsPlayer
                 EvrDisplayControl = (IMFVideoDisplayControl)Marshal.GetObjectForIUnknown(_object);
 
                 EvrDisplayControl.SetVideoWindow(this.Handle);
-                EvrDisplayControl.SetVideoPosition(new MFVideoNormalizedRect(0, 0, 1, 1), new MediaFoundation.Misc.MFRect(0, 0, this.Width,this.Height));
+                EvrDisplayControl.SetVideoPosition(new MFVideoNormalizedRect(0, 0, 1, 1), new MediaFoundation.Misc.MFRect(0, 0, this.Width, this.Height));
                 EvrDisplayControl.SetAspectRatioMode(this.IsVideoStretchMode ? MFVideoAspectRatioMode.None : MFVideoAspectRatioMode.PreservePixel);
 
                 this.HasVideo = true;
@@ -204,7 +263,7 @@ namespace VsPlayer
             {
                 DsError.ThrowExceptionForHR(hr);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception($"无法播放媒体文件“{filepath}”");
             }
@@ -246,28 +305,87 @@ namespace VsPlayer
             }
             return splitter;
         }
+        public void Open(ShowController.Models.SongItem songitem)
+        {
+            this.SongItem = songitem;
+            if(songitem.FilePath == null)
+            {
+                this.Status = PlayerStatus.Running;
+                return;
+            }
+            try
+            {
+                this.Open(songitem.FilePath);
+            }
+            catch
+            {
+                this.SongItem = null;
+                throw;
+            }
 
+        }
         public void Open(string file)
         {
             this.HasVideo = false;
+            this.Status = PlayerStatus.Stopped;
 
             if (_mediaBuilder != null)
+            {
                 _mediaBuilder.OpenFile(file, true);
+                this.Status = PlayerStatus.Running;
+                this.Visible = this.HasVideo;
+            }
         }
-        public void Stop()
+        public async void Stop()
         {
+            if(this.Status == PlayerStatus.Running)
+            {
+                var originalVolume = this.GetVolume();
+                await Task.Run(()=> {
+                    try
+                    {
+
+                        var eachVolume = 10000 / 100;
+                        var nowVolume = originalVolume;
+                        for (int i = 0; i < 100 && originalVolume > -8000; i++)
+                        {
+                            nowVolume -= eachVolume;
+                            this.Invoke(new ThreadStart(() => {
+                                _mediaBuilder.Volumn = nowVolume;
+                            }));                            
+                            Thread.Sleep(10);
+                        }
+                    }
+                    catch { }
+                });
+                _mediaBuilder.Volumn = originalVolume;
+            }
             _streamSelect = null;
 
             if (_mediaBuilder != null)
             {
                 _mediaBuilder.Stop();
             }
+            this.Status = PlayerStatus.Stopped;
+            if (Stopped != null)
+            {
+                Stopped(this, null);
+            }
         }
 
         public void SetPosition(double positon)
         {
             if (_mediaBuilder != null)
+            {
                 _mediaBuilder.SetPosition(positon);
+
+                var total = this.GetDuration();
+                var current = this.GetCurrentPosition();
+                if (this.ProgressChanged != null)
+                {
+                    this.ProgressChanged(this, total, current);
+                }
+            }
         }
         public double GetCurrentPosition()
         {
@@ -292,15 +410,46 @@ namespace VsPlayer
         }
         public void SetVolume(int volume)
         {
-            if (_mediaBuilder != null)
+            if (this.Status == PlayerStatus.Running)
             {
-                try
-                {
-                    _mediaBuilder.Volumn = volume;
-                }
-                catch
-                {
+                var originalVolume = _mediaBuilder.Volumn;
+                var nowVolume = originalVolume;
+                var targetVolume = volume;
+                var eachVolume = -100;
+                if (targetVolume > nowVolume)
+                    eachVolume = 100;
 
+                for(int i = 0; i < 10000; i ++)
+                {
+                    Thread.Sleep(10);
+                    nowVolume += eachVolume;
+                    if(originalVolume < targetVolume && nowVolume >= targetVolume)
+                    {
+                        nowVolume = targetVolume;
+                        _mediaBuilder.Volumn = nowVolume;
+                        break;
+                    }
+                    else if (originalVolume > targetVolume && nowVolume <= targetVolume)
+                    {
+                        nowVolume = targetVolume;
+                        _mediaBuilder.Volumn = nowVolume;
+                        break;
+                    }
+                    _mediaBuilder.Volumn = nowVolume;
+                }
+            }
+            else
+            {
+                if (_mediaBuilder != null)
+                {
+                    try
+                    {
+                        _mediaBuilder.Volumn = volume;
+                    }
+                    catch
+                    {
+
+                    }
                 }
             }
         }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace VsPlayer
 {
-    class AudioStream : INotifyPropertyChanged
+    public class AudioStream : INotifyPropertyChanged
     {
         void OnPropertyChange(string name)
         {
