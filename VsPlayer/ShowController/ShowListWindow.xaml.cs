@@ -87,6 +87,7 @@ namespace VsPlayer.ShowController
                     Name = "黑屏",
                     FilePath = "Black"
                 });
+                
             }
             
             this.Resources["BgListSource"] = DataModel.BgPicList;
@@ -112,6 +113,12 @@ namespace VsPlayer.ShowController
 
             playerArea.DataContext = DataModel.PlayerInfo;
             this.DataContext = DataModel;
+
+            var defaultBg = DataModel.BgPicList.FirstOrDefault(m => m.IsDefault);
+            if (defaultBg != null)
+            {
+                defaultBg.IsSelected = true;
+            }
         }
 
      
