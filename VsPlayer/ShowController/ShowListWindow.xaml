@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:VsPlayer.ShowController"
         mc:Ignorable="d"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
-        Title="演出控制台" Height="400" Width="800">
+        Title="VsPlayer - Program Control Center" Height="400" Width="800">
     <Window.Resources>
         
         <ControlTemplate x:Key="listBoxTemplate" TargetType="ListBox">
