@@ -206,9 +206,9 @@ namespace VsPlayer.ShowController
 
         private void menuDeleteSongItem_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show(this, "确定删除吗？", "", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
-            {
-                var songitem = (Models.SongItem)((FrameworkElement)sender).DataContext;
+            var songitem = (Models.SongItem)((FrameworkElement)sender).DataContext;
+            if (MessageBox.Show(this, "确定删除“"+songitem.Name+"”吗？", "", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+            {             
                 foreach (var programme in DataModel.ProgrammeList)
                 {
                     if (programme.Items.Contains(songitem))
@@ -463,6 +463,15 @@ namespace VsPlayer.ShowController
                 VideoForm.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
                 VideoForm.Location = new System.Drawing.Point(screen.Bounds.Left, screen.Bounds.Top);
                 VideoForm.ClientSize = screen.Bounds.Size;
+            }
+        }
+
+        private void menuDeleteProgramme_Click(object sender, RoutedEventArgs e)
+        {
+            var programme = (Models.Programme)((FrameworkElement)sender).DataContext;
+            if (MessageBox.Show(this, "确定删除“" + programme.Name + "”吗？", "", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+            {              
+                DataModel.ProgrammeList.Remove(programme);
             }
         }
     }

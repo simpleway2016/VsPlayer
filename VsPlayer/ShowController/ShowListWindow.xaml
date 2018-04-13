@@ -176,6 +176,8 @@
                                 <ContextMenu x:Key="contextMenu">
                                     <MenuItem Header="添加无声项" Click="menuAddNoSong_Click"></MenuItem>
                                     <MenuItem Header="添加歌曲..." Click="menuAddSong_Click"></MenuItem>
+                                    <Separator></Separator>
+                                    <MenuItem Header="删除节目..." Click="menuDeleteProgramme_Click"></MenuItem>
                                 </ContextMenu>
                             </Border.Resources>
                             <StackPanel Orientation="Vertical">                                

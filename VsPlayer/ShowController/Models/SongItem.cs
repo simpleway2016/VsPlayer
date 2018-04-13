@@ -276,6 +276,9 @@ namespace VsPlayer.ShowController.Models
         public virtual void OnPlayCompleted()
         {
             var programme = ShowListWindow.instance.DataModel.ProgrammeList.FirstOrDefault(m => m.Items.Contains(this));
+            if (programme == null)
+                return;
+
             if (programme.Items[programme.Items.Count - 1] == this)
             {
                 //如果是最后一个，而且this.PlayCompletedBgPic又是空，那么，背景回到默认
