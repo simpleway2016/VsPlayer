@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace VsPlayer
 {
@@ -33,6 +34,8 @@ namespace VsPlayer
                 }
             }
         }
+
+      
         public string Name
         {
             get;

@@ -68,16 +68,19 @@ namespace VsPlayer
                 _CurrentAudioStreamIndex = value;
                 try
                 {
-                    CurrentAudioStreams.Where(m => m.IsChecked).FirstOrDefault().IsChecked = false;
-                    CurrentAudioStreams[value].IsChecked = true;
+                    CurrentAudioStreams.Where(m => m.IsChecked && m.Index != value).FirstOrDefault().IsChecked = false;
+                    CurrentAudioStreams.Where(m => m.Index == value).FirstOrDefault().IsChecked = true;
                     //_mediaBuilder.StopForPinReconnect();
                     //var pin = _audioFilter.InputPin.ConnectedTo;
                     //_audioFilter.InputPin.Disconnect();
                     //_audioFilter.OutputPin.Disconnect();
-
+                    if(SongItem != null)
+                    {
+                        SongItem.AudioStreamIndex = value;
+                    }
                     if (_streamSelect != null)
                     {
-                        _streamSelect.Enable(CurrentAudioStreams[value].Index, DirectShowLib.AMStreamSelectEnableFlags.Enable);
+                        _streamSelect.Enable(value, DirectShowLib.AMStreamSelectEnableFlags.Enable);
                     }
 
                     //_audioFilter.InputPin.Connect(pin).Throw();
@@ -183,10 +186,12 @@ namespace VsPlayer
             {
                 this.Status = PlayerStatus.Stopped;
                 _streamSelect = null;
+               
                 if (PlayCompleted != null)
                 {
                     PlayCompleted(this, null);
                 }
+                SongItem?.OnPlayCompleted();
             }
         }
 
@@ -293,11 +298,12 @@ namespace VsPlayer
             }
             try
             {
-                CurrentAudioStreams[CurrentAudioStreamIndex].IsChecked = true;
+               
                 if (CurrentAudioStreamIndex != 0)
                 {
-                    _streamSelect.Enable(CurrentAudioStreams[CurrentAudioStreamIndex].Index, DirectShowLib.AMStreamSelectEnableFlags.Enable);
+                    _streamSelect.Enable(CurrentAudioStreamIndex, DirectShowLib.AMStreamSelectEnableFlags.Enable);
                 }
+                CurrentAudioStreams.FirstOrDefault(m=>m.Index == CurrentAudioStreamIndex).IsChecked = true;
             }
             catch
             {
@@ -308,8 +314,10 @@ namespace VsPlayer
         public void Open(ShowController.Models.SongItem songitem)
         {
             this.SongItem = songitem;
+            songitem.OnBeginPlay();
             if(songitem.FilePath == null)
             {
+                this.Stop();
                 this.Status = PlayerStatus.Running;
                 return;
             }
@@ -336,28 +344,28 @@ namespace VsPlayer
                 this.Visible = this.HasVideo;
             }
         }
-        public async void Stop()
+        public void Stop()
         {
-            if(this.Status == PlayerStatus.Running)
+            
+
+            if (this.Status == PlayerStatus.Running && SongItem.FilePath != null)
             {
                 var originalVolume = this.GetVolume();
-                await Task.Run(()=> {
-                    try
-                    {
+                try
+                {
 
-                        var eachVolume = 10000 / 100;
-                        var nowVolume = originalVolume;
-                        for (int i = 0; i < 100 && originalVolume > -8000; i++)
-                        {
-                            nowVolume -= eachVolume;
-                            this.Invoke(new ThreadStart(() => {
-                                _mediaBuilder.Volumn = nowVolume;
-                            }));                            
-                            Thread.Sleep(10);
-                        }
+                    var eachVolume = 10000 / 100;
+                    var nowVolume = originalVolume;
+                    for (int i = 0; i < 100 && originalVolume > -8000; i++)
+                    {
+                        nowVolume -= eachVolume;
+                        this.Invoke(new ThreadStart(() => {
+                            _mediaBuilder.Volumn = nowVolume;
+                        }));
+                        Thread.Sleep(10);
                     }
-                    catch { }
-                });
+                }
+                catch { }
                 _mediaBuilder.Volumn = originalVolume;
             }
             _streamSelect = null;
@@ -371,6 +379,7 @@ namespace VsPlayer
             {
                 Stopped(this, null);
             }
+            this.SongItem?.OnStop();
         }
 
         public void SetPosition(double positon)

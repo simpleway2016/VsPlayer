@@ -95,6 +95,7 @@
                                             <Style TargetType="MenuItem">
                                                 <Setter Property="IsChecked" Value="{Binding IsChecked}"></Setter>
                                                 <Setter Property="IsCheckable" Value="true"></Setter>
+                                                <EventSetter Event="Click" Handler="AudioStreamItemCheck_Click"></EventSetter>
                                             </Style>
                                         </MenuItem.ItemContainerStyle>
                                         <MenuItem.Style>
@@ -106,6 +107,9 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </MenuItem.Style>
+                                    </MenuItem>
+                                    <MenuItem Header="移动到" SubmenuOpened="moveSongMenuOpened_Click">
+                                        <MenuItem></MenuItem>
                                     </MenuItem>
                                     <MenuItem Header="删除歌曲" Click="menuDeleteSongItem_Click"></MenuItem>
                                 </ContextMenu>
@@ -203,17 +207,18 @@
         </Style>
 
         <Style x:Key="bgListItemStyle" TargetType="ListBoxItem">
+            <Setter Property="IsSelected" Value="{Binding IsSelected}"></Setter>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate>
-                        <Grid Background="Transparent" ContextMenu="{DynamicResource itemmenu}">
+                        <Grid x:Name="root" Background="Transparent" ContextMenu="{DynamicResource itemmenu}">
                             <Grid.Resources>
                                 <ContextMenu x:Key="itemmenu">
                                     <MenuItem Header="设为默认背景图" Click="menuSetDefaultBgItem_Click"></MenuItem>
                                     <MenuItem Header="删除背景" Click="menuDeleteBgItem_Click"></MenuItem>
                                 </ContextMenu>
                             </Grid.Resources>
-                            <TextBox x:Name="txt" Text="{Binding Name}" ToolTip="{Binding FilePath}" BorderThickness="0" ContextMenu="{DynamicResource itemmenu}" Background="Transparent" Margin="10,10,10,0"></TextBox>
+                            <TextBox x:Name="txt" Text="{Binding Name}" PreviewMouseDown="bgText_Click" ToolTip="{Binding FilePath}" BorderThickness="0" ContextMenu="{DynamicResource itemmenu}" Background="Transparent" Margin="10,10,10,0"></TextBox>
                             <TextBlock x:Name="txtFlag" Text="默认" Visibility="Collapsed" Foreground="#888" HorizontalAlignment="Right" Margin="10,10,10,0"></TextBlock>
                         </Grid>
                         <ControlTemplate.Triggers>
@@ -221,15 +226,13 @@
                                 <Setter TargetName="txt" Property="FontWeight" Value="Bold"></Setter>
                                 <Setter TargetName="txtFlag" Property="Visibility" Value="Visible"></Setter>
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="true">
+                                <Setter TargetName="root" Property="Background" Value="#ccc"></Setter>
+                            </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding Name}" Value="{x:Null}">
-                    <Setter Property="Visibility" Value="Collapsed"></Setter>
-                </DataTrigger>
-            </Style.Triggers>
         </Style>
     </Window.Resources>
     <Grid>
@@ -260,7 +263,7 @@
                     <TextBlock Text="背景图" VerticalAlignment="Center" Margin="10,0,0,0"></TextBlock>
                     <Button Content="+ 添加背景图" Click="btnAddBgPicture_Click" Height="20" Width="86" HorizontalAlignment="Right" Margin="0,0,10,0"></Button>
                 </Grid>
-                <ListBox ItemsSource="{Binding BgPicList}" ItemContainerStyle="{DynamicResource bgListItemStyle}" Template="{DynamicResource listBoxTemplate}">
+                <ListBox ItemsSource="{Binding BgPicList}" SelectionChanged="PictureChanged" ItemContainerStyle="{DynamicResource bgListItemStyle}" Template="{DynamicResource listBoxTemplate}">
                 </ListBox>
             </DockPanel>
             <!--#endregion-->

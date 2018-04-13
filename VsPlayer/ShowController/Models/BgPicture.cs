@@ -64,6 +64,25 @@ namespace VsPlayer.ShowController.Models
                 }
             }
         }
+
+
+        bool _IsSelected;
+        [Newtonsoft.Json.JsonIgnore]
+        public bool IsSelected
+        {
+            get
+            {
+                return _IsSelected;
+            }
+            set
+            {
+                if (_IsSelected != value)
+                {
+                    _IsSelected = value;
+                    this.OnPropertyChanged("IsSelected", null, value);
+                }
+            }
+        }
         public BgPicture()
         {
         }

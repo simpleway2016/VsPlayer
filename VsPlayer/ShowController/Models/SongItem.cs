@@ -236,5 +236,55 @@ namespace VsPlayer.ShowController.Models
             this.Name = Path.GetFileNameWithoutExtension(filepath);
             this.FilePath = filepath;
         }
+
+        void selectBg(string pic)
+        {
+            if (!string.IsNullOrEmpty(pic))
+            {
+                var item = ShowListWindow.instance.DataModel.BgPicList.FirstOrDefault(m => m.FilePath == pic);
+                if (item != null)
+                {
+                    item.IsSelected = true;
+                }
+            }
+        }
+        public virtual void OnBeginPlay()
+        {
+            selectBg(this.PlayingBgPic);
+        }
+
+        public virtual void OnStop()
+        {
+            selectBg(this.StopedBgPic);
+        }
+        public virtual void OnPlayCompleted()
+        {
+            var programme = ShowListWindow.instance.DataModel.ProgrammeList.FirstOrDefault(m => m.Items.Contains(this));
+            if (programme.Items[programme.Items.Count - 1] == this)
+            {
+                //如果是最后一个，而且this.PlayCompletedBgPic又是空，那么，背景回到默认
+                if (string.IsNullOrEmpty(this.PlayCompletedBgPic))
+                {
+                    selectBg(ShowListWindow.instance.DataModel.BgPicList.FirstOrDefault(m=>m.IsDefault)?.FilePath);
+                }
+            }
+
+            if(this.PlayCompletedAction == NextStep.循环播放)
+            {
+                ShowListWindow.instance.SongItemClickPlay(this);
+            }
+            else if (this.PlayCompletedAction == NextStep.播放下一曲)
+            {
+                 var nextIndex = programme.Items.IndexOf(this) + 1;
+                if(nextIndex < programme.Items.Count)
+                    ShowListWindow.instance.SongItemClickPlay(programme.Items[nextIndex]);
+
+            }
+            else if (this.PlayCompletedAction == NextStep.显示背景图)
+            {
+                selectBg(this.PlayCompletedBgPic);
+
+            }
+        }
     }
 }

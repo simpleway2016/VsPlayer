@@ -22,35 +22,40 @@ namespace VsPlayer.ShowController
     /// </summary>
     public partial class ShowListWindow : Window
     {
-        public class MyModel
+        public class MyModel:Way.Lib.DataModel
         {
             public Models.ProgrammeCollection ProgrammeList { get; set; }
             public ObservableCollection<Models.BgPicture> BgPicList { get; set; }
+
             public Models.PlayerInfo PlayerInfo { get; set; }
         }
-        MyModel _dataModel;
-        VideoForm _VideoForm;
+        public static ShowListWindow instance;
+        public MyModel DataModel;
+        public VideoForm VideoForm;
         public ShowListWindow()
         {
-            _VideoForm = new VideoForm();
+            instance = this;
+            VideoForm = new VideoForm();
 
             var path = $"{AppDomain.CurrentDomain.BaseDirectory}data.txt";
             if (File.Exists(path))
             {
-                _dataModel = Newtonsoft.Json.JsonConvert.DeserializeObject<MyModel> (System.IO.File.ReadAllText(path));
+                DataModel = Newtonsoft.Json.JsonConvert.DeserializeObject<MyModel> (System.IO.File.ReadAllText(path));
 
             }
             else
             {
-                _dataModel = new MyModel {
+                DataModel = new MyModel {
                     ProgrammeList = new Models.ProgrammeCollection(),
                     BgPicList = new ObservableCollection<Models.BgPicture>(),
                     PlayerInfo = new Models.PlayerInfo()
                 };
-                _dataModel.BgPicList.Add(new Models.BgPicture());
+                DataModel.BgPicList.Add(new Models.BgPicture() {
+                    Name = "黑屏"
+                });
             }
             
-            this.Resources["BgListSource"] = _dataModel.BgPicList;
+            this.Resources["BgListSource"] = DataModel.BgPicList;
             var NextStepSource = new List<object>();
             var names = Enum.GetNames(typeof(Models.NextStep));
             foreach (var name in names)
@@ -66,29 +71,30 @@ namespace VsPlayer.ShowController
 
             InitializeComponent();
           
-            _VideoForm.Player.ProgressChanged += Player_ProgressChanged;
-            _VideoForm.Player.PlayCompleted += Player_PlayCompleted;
-            _VideoForm.Player.Stopped += Player_Stopped;
-           _VideoForm.Show();
+            VideoForm.Player.ProgressChanged += Player_ProgressChanged;
+            VideoForm.Player.PlayCompleted += Player_PlayCompleted;
+            VideoForm.Player.Stopped += Player_Stopped;
+           VideoForm.Show();
 
-            playerArea.DataContext = _dataModel.PlayerInfo;
-            this.DataContext = _dataModel;
+            playerArea.DataContext = DataModel.PlayerInfo;
+            this.DataContext = DataModel;
         }
 
      
         private void Player_Stopped(object sender, EventArgs e)
         {
-            
+            VideoForm.Player.Visible = false;
         }
 
         private void Player_PlayCompleted(object sender, EventArgs e)
         {
+            VideoForm.Player.Visible = false;
         }
 
         private void Player_ProgressChanged(object sender, double totalSeconds, double currentSeconds)
         {
-            _dataModel.PlayerInfo.TotalSeconds = totalSeconds;
-            _dataModel.PlayerInfo.CurrentSeconds = currentSeconds;
+            DataModel.PlayerInfo.TotalSeconds = totalSeconds;
+            DataModel.PlayerInfo.CurrentSeconds = currentSeconds;
         }
 
         private void menuAddSong_Click(object sender, RoutedEventArgs e)
@@ -115,9 +121,9 @@ namespace VsPlayer.ShowController
             if (File.Exists(path))
                 File.Delete(path);
 
-            System.IO.File.WriteAllText(path, Newtonsoft.Json.JsonConvert.SerializeObject(_dataModel));
-            _VideoForm.Player.Stop();
-            _VideoForm.Player._mediaBuilder.Dispose();
+            System.IO.File.WriteAllText(path, Newtonsoft.Json.JsonConvert.SerializeObject(DataModel));
+            VideoForm.Player.Stop();
+            VideoForm.Player._mediaBuilder.Dispose();
             base.OnClosed(e);
         }
 
@@ -128,7 +134,7 @@ namespace VsPlayer.ShowController
         /// <param name="e"></param>
         private void btnAddProgramme_Click(object sender, RoutedEventArgs e)
         {
-            _dataModel.ProgrammeList.Add(new Models.Programme
+            DataModel.ProgrammeList.Add(new Models.Programme
             {
                 Name = "节目"
             });
@@ -155,7 +161,7 @@ namespace VsPlayer.ShowController
                 {                   
                     foreach (var filepath in fd.FileNames)
                     {
-                        _dataModel.BgPicList.Add(new Models.BgPicture(filepath));
+                        DataModel.BgPicList.Add(new Models.BgPicture(filepath));
                     }
                      
                 }
@@ -167,7 +173,7 @@ namespace VsPlayer.ShowController
             if (MessageBox.Show(this, "确定删除吗？", "", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
             {
                 var songitem = (Models.SongItem)((FrameworkElement)sender).DataContext;
-                foreach (var programme in _dataModel.ProgrammeList)
+                foreach (var programme in DataModel.ProgrammeList)
                 {
                     if (programme.Items.Contains(songitem))
                     {
@@ -183,14 +189,14 @@ namespace VsPlayer.ShowController
             if (MessageBox.Show(this, "确定删除吗？", "", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
             {
                 var bgitem = (Models.BgPicture)((FrameworkElement)sender).DataContext;
-                _dataModel.BgPicList.Remove(bgitem);
+                DataModel.BgPicList.Remove(bgitem);
             }
         }
 
         private void menuSetDefaultBgItem_Click(object sender, RoutedEventArgs e)
         {
             var bgitem = (Models.BgPicture)((FrameworkElement)sender).DataContext;
-            foreach( var item in _dataModel.BgPicList )
+            foreach( var item in DataModel.BgPicList )
             {
                 item.IsDefault = false;
             }
@@ -200,27 +206,27 @@ namespace VsPlayer.ShowController
         private void btnPlaySong_Click(object sender, RoutedEventArgs e)
         {
             var songitem = (Models.SongItem)((FrameworkElement)sender).DataContext;
-            songItemClickPlay(songitem);
+            SongItemClickPlay(songitem);
         }
 
-        void songItemClickPlay(Models.SongItem songitem)
+        public void SongItemClickPlay(Models.SongItem songitem)
         {
             if (songitem == null)
                 return;
 
             if (songitem.IsPlaying)
             {
-                _VideoForm.Player.Pause();
+                VideoForm.Player.Pause();
             }
             else
             {
-                if (_VideoForm.Player.Status == PlayerStatus.Stopped || _VideoForm.Player.SongItem != songitem)
+                if (VideoForm.Player.Status == PlayerStatus.Stopped || VideoForm.Player.SongItem != songitem)
                 {
-                    _VideoForm.Player.CurrentAudioStreamIndex = songitem.AudioStreamIndex;
-                    _VideoForm.Player.Open(songitem);
+                    VideoForm.Player.CurrentAudioStreamIndex = songitem.AudioStreamIndex;
+                    VideoForm.Player.Open(songitem);
                 }
                 else
-                    _VideoForm.Player.Play();
+                    VideoForm.Player.Play();
             }
         }
 
@@ -232,13 +238,13 @@ namespace VsPlayer.ShowController
 
             if(programme.IsActivedItem)
             {
-                songItemClickPlay(programme.Items.FirstOrDefault(m=>m.IsActivedItem));
+                SongItemClickPlay(programme.Items.FirstOrDefault(m=>m.IsActivedItem));
             }
             else
             {
-                songItemClickPlay(programme.Items[0]);
+                SongItemClickPlay(programme.Items[0]);
                 programme.IsShowedDetail = true;
-                foreach( var p in _dataModel.ProgrammeList )
+                foreach( var p in DataModel.ProgrammeList )
                 {
                     if(p != programme)
                     {
@@ -250,19 +256,19 @@ namespace VsPlayer.ShowController
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)
         {
-            if (_VideoForm.Player.Status == PlayerStatus.Running)
+            if (VideoForm.Player.Status == PlayerStatus.Running)
             {
-                _VideoForm.Player.Pause();
+                VideoForm.Player.Pause();
             }
-            else if (_VideoForm.Player.Status == PlayerStatus.Paused)
+            else if (VideoForm.Player.Status == PlayerStatus.Paused)
             {
-                _VideoForm.Player.Play();
+                VideoForm.Player.Play();
             }
         }
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
-            _VideoForm.Player.Stop();
+            VideoForm.Player.Stop();
         }
 
         private void VolumeMenu_ContextMenuOpened(object sender, RoutedEventArgs e)
@@ -271,7 +277,7 @@ namespace VsPlayer.ShowController
             foreach (MenuItem menuitem in menu.Items)
             {
                 var value = Convert.ToInt32(77 * Convert.ToDouble(menuitem.Header.ToString().Replace("%", "")) / 100);
-                menuitem.IsChecked = _dataModel.PlayerInfo.Volume == value;
+                menuitem.IsChecked = DataModel.PlayerInfo.Volume == value;
             }
         }
 
@@ -283,7 +289,7 @@ namespace VsPlayer.ShowController
                 index = 0;
             else if (index >= Controls.VolumeControl.volumes.Count)
                 index = Controls.VolumeControl.volumes.Count - 1;
-            _dataModel.PlayerInfo.Volume = Controls.VolumeControl.volumes[index];
+            DataModel.PlayerInfo.Volume = Controls.VolumeControl.volumes[index];
         }
 
         private void menuAddNoSong_Click(object sender, RoutedEventArgs e)
@@ -293,6 +299,83 @@ namespace VsPlayer.ShowController
                 Name = "纯背景"
             });
             programme.IsShowedDetail = true;
+        }
+
+        private void AudioStreamItemCheck_Click(object sender, RoutedEventArgs e)
+        {
+            var audioStream = (AudioStream)((FrameworkElement)sender).DataContext;
+            VideoForm.Player.CurrentAudioStreamIndex = audioStream.Index;
+        }
+
+        private void moveSongMenuOpened_Click(object sender, RoutedEventArgs e)
+        {
+            var songItem = (Models.SongItem)((FrameworkElement)sender).DataContext;
+            var programme = DataModel.ProgrammeList.FirstOrDefault(m => m.Items.Contains(songItem));
+            var menu = ((MenuItem)sender);
+            menu.Items.Clear();
+            foreach( var song in programme.Items )
+            {
+                var newmenuitem = new MenuItem
+                {
+                    Header = song.Name,
+                    Tag = new Models.SongItem[] {songItem , song }
+                };
+                newmenuitem.Click += moveSong_Click;
+                menu.Items.Add(newmenuitem);
+            }
+        }
+
+        private void moveSong_Click(object sender, RoutedEventArgs e)
+        {
+            var menu = ((MenuItem)sender);
+            Models.SongItem[] objs = (Models.SongItem[])menu.Tag;
+            var target =  objs[1];
+            var source = objs[0];
+            if(source != target)
+            {
+                var programme = DataModel.ProgrammeList.FirstOrDefault(m => m.Items.Contains(source));
+                programme.Items.Remove(source);
+                var index = programme.Items.IndexOf(target);
+                programme.Items.Insert(index, source);
+            }
+        }
+
+        private void bgText_Click(object sender, MouseButtonEventArgs e)
+        {
+            var bgPic = (Models.BgPicture)((FrameworkElement)sender).DataContext;
+            bgPic.IsSelected = true;
+        }
+
+        private void PictureChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var data = ((ListBox)sender).SelectedItem as Models.BgPicture;
+            if (data == null)
+                return;
+
+            var old = VideoForm.pictureBox.Image;
+
+            try
+            {
+                if (string.IsNullOrEmpty(data.FilePath))
+                {
+                    VideoForm.pictureBox.Image = null;
+                }
+                else
+                {
+                    using (System.IO.FileStream fs = System.IO.File.OpenRead(data.FilePath))
+                    {
+                        VideoForm.pictureBox.Image = System.Drawing.Bitmap.FromStream(fs);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                VideoForm.pictureBox.Image = null;
+            }
+            if (old != null)
+            {
+                old.Dispose();
+            }
         }
     }
 }
