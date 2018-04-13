@@ -250,7 +250,23 @@ namespace VsPlayer.ShowController.Models
         }
         public virtual void OnBeginPlay()
         {
-            selectBg(this.PlayingBgPic);
+            if (FilePath == null)
+            {
+                //纯背景的
+                if(string.IsNullOrEmpty(PlayingBgPic))
+                {
+                    //显示默认背景
+                    selectBg(ShowListWindow.instance.DataModel.BgPicList.FirstOrDefault(m => m.IsDefault)?.FilePath);
+                }
+                else
+                {
+                    selectBg(this.PlayingBgPic);
+                }
+            }
+            else
+            {
+                selectBg(this.PlayingBgPic);
+            }
         }
 
         public virtual void OnStop()

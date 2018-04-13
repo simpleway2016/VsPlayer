@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -27,6 +28,38 @@ namespace VsPlayer.ShowController
             public Models.ProgrammeCollection ProgrammeList { get; set; }
             public ObservableCollection<Models.BgPicture> BgPicList { get; set; }
 
+
+            bool _IsPicStretchMode;
+            /// <summary>
+            /// 拉伸背景图
+            /// </summary>
+            public bool IsPicStretchMode
+            {
+                get
+                {
+                    return _IsPicStretchMode;
+                }
+                set
+                {
+                    if (_IsPicStretchMode != value)
+                    {
+                        _IsPicStretchMode = value;
+
+                        ShowListWindow.instance.VideoForm.Player.IsVideoStretchMode = value;
+                        if (value)
+                        {
+                            ShowListWindow.instance.VideoForm.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+                        }
+                        else
+                        {
+                            ShowListWindow.instance.VideoForm.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+
+                        }
+
+                        this.OnPropertyChanged("IsPicStretchMode", null, value);
+                    }
+                }
+            }
             public Models.PlayerInfo PlayerInfo { get; set; }
         }
         public static ShowListWindow instance;
@@ -115,7 +148,7 @@ namespace VsPlayer.ShowController
             
         }
 
-        protected override void OnClosed(EventArgs e)
+        protected override void OnClosing(CancelEventArgs e)
         {
             var path = $"{AppDomain.CurrentDomain.BaseDirectory}data.txt";
             if (File.Exists(path))
@@ -124,8 +157,11 @@ namespace VsPlayer.ShowController
             System.IO.File.WriteAllText(path, Newtonsoft.Json.JsonConvert.SerializeObject(DataModel));
             VideoForm.Player.Stop();
             VideoForm.Player._mediaBuilder.Dispose();
-            base.OnClosed(e);
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
+
+            base.OnClosing(e);
         }
+
 
         /// <summary>
         /// 添加节目
@@ -375,6 +411,58 @@ namespace VsPlayer.ShowController
             if (old != null)
             {
                 old.Dispose();
+            }
+        }
+
+        private void Mute_Click(object sender, MouseButtonEventArgs e)
+        {
+            DataModel.PlayerInfo.Volume = -10000;
+        }
+
+        private void btnSelectScreen_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            System.Windows.Forms.Screen[] screens = System.Windows.Forms.Screen.AllScreens;
+            ContextMenu menu = new ContextMenu();
+            menu.PlacementTarget = btnSetting;
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Right;
+            foreach (var screen in screens)
+            {
+                MenuItem item = new MenuItem();
+                item.Header = screen.DeviceName;
+                if (screen == System.Windows.Forms.Screen.PrimaryScreen)
+                {
+                    item.Header = "主屏幕";
+                    item.Tag = null;
+                }
+                else
+                {
+                    item.Tag = screen;
+                }
+                item.Click += ScreenItem_Click;
+                menu.Items.Add(item);
+            }
+            menu.IsOpen = true;
+        }
+
+        System.Drawing.Size _originalSize = new System.Drawing.Size(500, 300);
+        private void ScreenItem_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = sender as MenuItem;
+            System.Windows.Forms.Screen screen = item.Tag as System.Windows.Forms.Screen;
+            if (screen == null)
+            {
+                //主屏幕
+                VideoForm.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+                VideoForm.Location = new System.Drawing.Point(System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Left, System.Windows.Forms.Screen.PrimaryScreen.WorkingArea.Top);
+                VideoForm.ClientSize = _originalSize;
+            }
+            else
+            {
+                //
+                _originalSize = VideoForm.ClientSize;
+                VideoForm.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+                VideoForm.Location = new System.Drawing.Point(screen.Bounds.Left, screen.Bounds.Top);
+                VideoForm.ClientSize = screen.Bounds.Size;
             }
         }
     }

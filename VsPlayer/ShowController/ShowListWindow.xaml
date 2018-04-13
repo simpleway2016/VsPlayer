@@ -10,7 +10,7 @@
     <Window.Resources>
         
         <ControlTemplate x:Key="listBoxTemplate" TargetType="ListBox">
-            <ScrollViewer>
+            <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" CanContentScroll="False">
                 <StackPanel Orientation="Vertical" IsItemsHost="True"></StackPanel>
             </ScrollViewer>
         </ControlTemplate>
@@ -211,15 +211,15 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate>
-                        <Grid x:Name="root" Background="Transparent" ContextMenu="{DynamicResource itemmenu}">
+                        <Grid x:Name="root" Height="26" Background="Transparent" ContextMenu="{DynamicResource itemmenu}" PreviewMouseDown="bgText_Click">
                             <Grid.Resources>
                                 <ContextMenu x:Key="itemmenu">
                                     <MenuItem Header="设为默认背景图" Click="menuSetDefaultBgItem_Click"></MenuItem>
                                     <MenuItem Header="删除背景" Click="menuDeleteBgItem_Click"></MenuItem>
                                 </ContextMenu>
                             </Grid.Resources>
-                            <TextBox x:Name="txt" Text="{Binding Name}" PreviewMouseDown="bgText_Click" ToolTip="{Binding FilePath}" BorderThickness="0" ContextMenu="{DynamicResource itemmenu}" Background="Transparent" Margin="10,10,10,0"></TextBox>
-                            <TextBlock x:Name="txtFlag" Text="默认" Visibility="Collapsed" Foreground="#888" HorizontalAlignment="Right" Margin="10,10,10,0"></TextBlock>
+                            <TextBox x:Name="txt" Text="{Binding Name}" Margin="10,0,50,0" ToolTip="{Binding FilePath}" BorderThickness="0" ContextMenu="{DynamicResource itemmenu}" Background="Transparent" VerticalAlignment="Center"></TextBox>
+                            <TextBlock x:Name="txtFlag" Text="默认" Margin="0,0,10,0" Visibility="Collapsed" Foreground="#888" HorizontalAlignment="Right" VerticalAlignment="Center"></TextBlock>
                         </Grid>
                         <ControlTemplate.Triggers>
                             <DataTrigger Binding="{Binding IsDefault}" Value="true">
@@ -235,7 +235,13 @@
             </Setter>
         </Style>
     </Window.Resources>
+     <Window.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="拉伸背景图" IsCheckable="True" IsChecked="{Binding IsPicStretchMode}"></MenuItem>
+            </ContextMenu>
+        </Window.ContextMenu>
     <Grid>
+       
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
@@ -283,7 +289,7 @@
                     <Rectangle Fill="#5091e4"></Rectangle>
                 </Grid>
             </Controls:PlayerProgressBar>
-            <Image Source="/images/sound2.png" UseLayoutRounding="True" Width="32" Height="32" Margin="0,-4,110,0" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
+            <Image ToolTip="点击静音" MouseDown="Mute_Click" Source="/images/sound2.png" UseLayoutRounding="True" Width="32" Height="32" Margin="0,-4,110,0" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
             <Controls:VolumeControl Margin="0,2,10,0" Width="100" Height="22" Cursor="Hand" Background="Transparent" HorizontalAlignment="Right" VerticalAlignment="Top">
                 <Controls:VolumeControl.ContextMenu>
                     <ContextMenu Opened="VolumeMenu_ContextMenuOpened">
@@ -315,6 +321,7 @@
             <TextBlock Text="{Binding CurrentSecondString}" Foreground="{Binding CurrentSecondColor}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="65,28,0,0"></TextBlock>
             <TextBlock Text="/" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="121,27,0,0"></TextBlock>
             <TextBlock Text="{Binding TotalSecondString}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="134,28,0,0"></TextBlock>
+            <Image x:Name="btnSetting" SnapsToDevicePixels="True" MouseDown="btnSelectScreen_MouseDown" Width="16" Cursor="Hand" Height="16" Source="/images/screen.png" HorizontalAlignment="Right" Margin="0,22,16,7"></Image>
         </Grid>
         <!--#endregion-->
     </Grid>

@@ -64,7 +64,7 @@ namespace VsPlayer.ShowController.Models
                 }
             }
         }
-
+        
 
         bool _IsSelected;
         [Newtonsoft.Json.JsonIgnore]
