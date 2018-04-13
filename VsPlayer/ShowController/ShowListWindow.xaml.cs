@@ -84,7 +84,8 @@ namespace VsPlayer.ShowController
                     PlayerInfo = new Models.PlayerInfo()
                 };
                 DataModel.BgPicList.Add(new Models.BgPicture() {
-                    Name = "黑屏"
+                    Name = "黑屏",
+                    FilePath = "Black"
                 });
             }
             
@@ -392,7 +393,7 @@ namespace VsPlayer.ShowController
 
             try
             {
-                if (string.IsNullOrEmpty(data.FilePath))
+                if (string.IsNullOrEmpty(data.FilePath) || data.FilePath == "Black")
                 {
                     VideoForm.pictureBox.Image = null;
                 }
@@ -472,6 +473,18 @@ namespace VsPlayer.ShowController
             if (MessageBox.Show(this, "确定删除“" + programme.Name + "”吗？", "", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
             {              
                 DataModel.ProgrammeList.Remove(programme);
+            }
+        }
+
+        private void ChangeSong_Click(object sender, RoutedEventArgs e)
+        {
+            var songItem = (Models.SongItem)((FrameworkElement)sender).DataContext;
+            using (var fd = new System.Windows.Forms.OpenFileDialog())
+            {
+                if(fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    songItem.FilePath = fd.FileName;
+                }
             }
         }
     }

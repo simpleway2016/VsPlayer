@@ -111,7 +111,7 @@
                                     <MenuItem Header="移动到" SubmenuOpened="moveSongMenuOpened_Click">
                                         <MenuItem></MenuItem>
                                     </MenuItem>
-                                    <MenuItem Header="删除歌曲" Click="menuDeleteSongItem_Click"></MenuItem>
+                                    <MenuItem Header="删除曲目" Click="menuDeleteSongItem_Click"></MenuItem>
                                 </ContextMenu>
                             </StackPanel.Resources>
                             <Grid Margin="5">
@@ -141,6 +141,17 @@
                                         <ComboBox x:Name="cmbbg3" Margin="10,0,0,0" Visibility="Collapsed" SelectedValue="{Binding PlayCompletedBgPic}" ItemsSource="{DynamicResource BgListSource}" ItemStringFormat="{}背景图：{0}" DisplayMemberPath="Name" SelectedValuePath="FilePath">
                                         </ComboBox>
                                     </StackPanel>
+
+                                    <TextBlock Text="曲目路径：" Margin="10,90,0,10" Width="80" HorizontalAlignment="Left"></TextBlock>
+                                    <!--更换曲目-->
+                                    <Button Margin="80,90,0,0" ToolTip="点击更换曲目" VerticalAlignment="Top" HorizontalAlignment="Left" Click="ChangeSong_Click">
+                                        <Button.Template>
+                                            <ControlTemplate>
+                                                <TextBlock TextDecorations="Underline" Foreground="#880fcd" Cursor="Hand" Text="{Binding FilePath}">
+                                                </TextBlock>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
                                 </Grid>
                             </Grid>
                             <Rectangle Height="1" Fill="#eee"></Rectangle>
@@ -175,7 +186,7 @@
                             <Border.Resources>
                                 <ContextMenu x:Key="contextMenu">
                                     <MenuItem Header="添加纯背景环节" Click="menuAddNoSong_Click"></MenuItem>
-                                    <MenuItem Header="添加歌曲..." Click="menuAddSong_Click"></MenuItem>
+                                    <MenuItem Header="添加曲目..." Click="menuAddSong_Click"></MenuItem>
                                     <Separator></Separator>
                                     <MenuItem Header="删除节目..." Click="menuDeleteProgramme_Click"></MenuItem>
                                 </ContextMenu>
