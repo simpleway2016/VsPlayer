@@ -37,6 +37,9 @@
   <PropertyGroup>
     <ApplicationIcon>ico.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="BaseClassesNET, Version=1.0.0.6, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
@@ -183,6 +186,7 @@
     <EmbeddedResource Include="VideoForm.resx">
       <DependentUpon>VideoForm.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="app.manifest" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

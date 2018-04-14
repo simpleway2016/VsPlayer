@@ -17,6 +17,7 @@ namespace VsPlayer
         public VideoForm()
         {
             InitializeComponent();
+           
             pictureBox = new PictureBox();
             pictureBox.BackColor = Color.Black;
             pictureBox.Dock = DockStyle.Fill;
