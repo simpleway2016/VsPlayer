@@ -198,12 +198,19 @@
                                     <!--节目名称-->
                                     <TextBox x:Name="txtName" Text="{Binding Name}" ContextMenu="{DynamicResource contextMenu}" VerticalAlignment="Center" Background="Transparent" BorderThickness="0" Margin="26,-1,60,0">
                                     </TextBox>
+                                    <Grid ToolTip="循环播放" Cursor="Hand" Margin="0,0,40,0" MouseDown="btnLoopPlay_Click" Background="Transparent" Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                        <Path x:Name="icoLoop" Fill="#aaa" Stretch="Fill" Data="M437.011 74.99c-46.326-46.328-110.318-74.99-181.011-74.99-109.744 0-203.345 69.064-239.749 166.094l59.938 22.477c27.302-72.773 97.503-124.571 179.811-124.571 53.020 0 101.010 21.5 135.753 56.247l-71.753 71.753h192v-192l-74.989 74.99zM256 448c-53.020 0-101.013-21.496-135.756-56.244l71.756-71.756h-192v192l74.997-74.997c46.323 46.331 110.309 74.997 181.003 74.997 109.745 0 203.346-69.064 239.75-166.094l-59.938-22.477c-27.302 72.773-97.503 124.571-179.812 124.571z">
+                                        </Path>
+                                    </Grid>
                                 </Grid>
                                 <ListBox x:Name="detailList" Margin="10,0,10,0" ItemsSource="{Binding Items}" Template="{DynamicResource listBoxTemplate2}" ItemContainerStyle="{DynamicResource songItemStyle}">
                                 </ListBox>
                             </StackPanel>
                         </Border>
                         <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsLoopPlay}" Value="true">
+                                <Setter TargetName="icoLoop" Property="Fill" Value="#0b5aab"></Setter>
+                            </DataTrigger>
                             <DataTrigger Binding="{Binding IsShowedDetail}" Value="True">
                                 <Setter TargetName="downBtn" Property="Style" Value="{DynamicResource upBtnStyle}"></Setter>
                             </DataTrigger>

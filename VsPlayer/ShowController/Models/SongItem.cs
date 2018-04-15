@@ -304,6 +304,22 @@ namespace VsPlayer.ShowController.Models
                 selectBg(this.PlayCompletedBgPic);
 
             }
+            else
+            {
+                if (programme.IsLoopPlay)
+                {
+                    if (this == programme.Items.Last())
+                    {
+                        //播放节目第一首
+                        ShowListWindow.instance.SongItemClickPlay(programme.Items[0]);
+                    }
+                    else
+                    {
+                        //播放下一首
+                        ShowListWindow.instance.SongItemClickPlay(programme.Items[programme.Items.IndexOf(this) + 1]);
+                    }
+                }
+            }
         }
     }
 }

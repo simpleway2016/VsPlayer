@@ -494,5 +494,11 @@ namespace VsPlayer.ShowController
                 }
             }
         }
+
+        private void btnLoopPlay_Click(object sender, MouseButtonEventArgs e)
+        {
+            var programme = (Models.Programme)((FrameworkElement)sender).DataContext;
+            programme.IsLoopPlay = !programme.IsLoopPlay;
+        }
     }
 }

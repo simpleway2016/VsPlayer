@@ -66,6 +66,23 @@ namespace VsPlayer.ShowController.Models
             }
         }
 
+        bool _IsLoopPlay;
+        public bool IsLoopPlay
+        {
+            get
+            {
+                return _IsLoopPlay;
+            }
+            set
+            {
+                if (_IsLoopPlay != value)
+                {
+                    _IsLoopPlay = value;
+                    this.OnPropertyChanged("IsLoopPlay", null, value);
+                }
+            }
+        }
+
         bool _IsActivedItem;
         [Newtonsoft.Json.JsonIgnore]
         public bool IsActivedItem
@@ -112,6 +129,7 @@ namespace VsPlayer.ShowController.Models
                 this.IsPlaying = false;
             }
         }
+        
     }
 
     public class ProgrammeCollection : ObservableCollection<Programme>
