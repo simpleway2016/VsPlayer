@@ -188,6 +188,10 @@
                                     <MenuItem Header="添加纯背景环节" Click="menuAddNoSong_Click"></MenuItem>
                                     <MenuItem Header="添加曲目..." Click="menuAddSong_Click"></MenuItem>
                                     <Separator></Separator>
+                                    <MenuItem Header="移动到" SubmenuOpened="moveProgrammeMenuOpened_Click">
+                                        <MenuItem></MenuItem>
+                                    </MenuItem>
+                                    <Separator></Separator>
                                     <MenuItem Header="删除节目..." Click="menuDeleteProgramme_Click"></MenuItem>
                                 </ContextMenu>
                             </Border.Resources>

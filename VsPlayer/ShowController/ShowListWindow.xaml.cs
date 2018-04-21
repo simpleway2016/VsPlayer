@@ -500,5 +500,36 @@ namespace VsPlayer.ShowController
             var programme = (Models.Programme)((FrameworkElement)sender).DataContext;
             programme.IsLoopPlay = !programme.IsLoopPlay;
         }
+
+        private void moveProgrammeMenuOpened_Click(object sender, RoutedEventArgs e)
+        {
+            var programmeItem = (Models.Programme)((FrameworkElement)sender).DataContext;
+            var menu = ((MenuItem)sender);
+            menu.Items.Clear();
+            foreach (var proitem in DataModel.ProgrammeList)
+            {
+                var newmenuitem = new MenuItem
+                {
+                    Header = proitem.Name,
+                    Tag = new Models.Programme[] { programmeItem, proitem }
+                };
+                newmenuitem.Click += moveProgrammeItem_Click;
+                menu.Items.Add(newmenuitem);
+            }
+        }
+
+        private void moveProgrammeItem_Click(object sender, RoutedEventArgs e)
+        {
+            var menu = ((MenuItem)sender);
+            Models.Programme[] objs = (Models.Programme[])menu.Tag;
+            var target = objs[1];
+            var source = objs[0];
+            if (source != target)
+            {
+                DataModel.ProgrammeList.Remove(source);
+                var index = DataModel.ProgrammeList.IndexOf(target);
+                DataModel.ProgrammeList.Insert(index, source);
+            }
+        }
     }
 }
