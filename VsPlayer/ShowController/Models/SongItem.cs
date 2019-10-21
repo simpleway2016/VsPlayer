@@ -27,6 +27,27 @@ namespace VsPlayer.ShowController.Models
             }
         }
 
+        bool _isOpenFile;
+        /// <summary>
+        /// open file with system application
+        /// </summary>
+        public bool IsOpenFile
+        {
+            get
+            {
+                return _isOpenFile;
+            }
+            set
+            {
+                if (_isOpenFile != value)
+                {
+                    _isOpenFile = value;
+                    this.OnPropertyChanged("IsOpenFile", null, value);
+                }
+            }
+        }
+
+
         bool _IsShowedDetail;
         [Newtonsoft.Json.JsonIgnore]
         public bool IsShowedDetail
@@ -209,6 +230,63 @@ namespace VsPlayer.ShowController.Models
         public SongItem()
         {
             MediaPlayer.instance.StatusChanged += Instance_StatusChanged;
+        }
+        System.Diagnostics.Process _OpenFileProcess;
+       public virtual void Play(MediaPlayer player)
+        {
+            if (_isOpenFile)
+            {
+                if (_OpenFileProcess == null)
+                {
+                    _OpenFileProcess = System.Diagnostics.Process.Start(this.FilePath);
+                    _OpenFileProcess.EnableRaisingEvents = true;
+                    _OpenFileProcess.Exited += _OpenFileProcess_Exited;
+                    this.IsPlaying = true;
+                    ShowListWindow.instance.DataModel.ProgrammeList.FirstOrDefault(m => m.Items.Contains(this)).IsPlaying = true;
+                }
+            }
+            else
+            {
+                player.Open(this.FilePath);
+            }
+        }
+
+        private void _OpenFileProcess_Exited(object sender, EventArgs e)
+        {
+            _OpenFileProcess = null;
+            this.OnPlayCompleted();
+        }
+
+        public virtual void Stop(MediaPlayer player)
+        {
+            if (_isOpenFile)
+            {
+                if (_OpenFileProcess != null)
+                {
+                    ShowListWindow.instance.DataModel.ProgrammeList.FirstOrDefault(m => m.Items.Contains(this)).IsPlaying = false;
+                    _OpenFileProcess.Kill();
+                    _OpenFileProcess = null;
+                    this.IsPlaying = false;
+              
+                }
+            }
+            else
+            {
+                player.Stop();
+            }
+           
+        }
+        public virtual void Pause(MediaPlayer player)
+        {
+            if (_isOpenFile)
+            {
+
+            }
+            else
+            {
+                player.Pause();
+            }
+            
         }
 
         private void Instance_StatusChanged(object sender, EventArgs e)

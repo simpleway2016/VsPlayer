@@ -531,5 +531,24 @@ namespace VsPlayer.ShowController
                 DataModel.ProgrammeList.Insert(index, source);
             }
         }
+
+        private void menuAddFile_Click(object sender, RoutedEventArgs e)
+        {
+            using (System.Windows.Forms.OpenFileDialog fd = new System.Windows.Forms.OpenFileDialog())
+            {
+                fd.Multiselect = true;
+                if (fd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    var programme = (Models.Programme)((FrameworkElement)sender).DataContext;
+                    foreach (var filepath in fd.FileNames)
+                    {
+                        programme.Items.Add(new Models.SongItem(filepath) {
+                            IsOpenFile = true
+                        });
+                    }
+                    programme.IsShowedDetail = true;
+                }
+            }
+        }
     }
 }

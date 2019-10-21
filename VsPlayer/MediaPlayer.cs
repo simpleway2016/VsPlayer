@@ -317,13 +317,13 @@ namespace VsPlayer
             songitem.OnBeginPlay();
             if(songitem.FilePath == null)
             {
-                this.Stop();
+                songitem.Stop(this);
                 this.Status = PlayerStatus.Running;
                 return;
             }
             try
             {
-                this.Open(songitem.FilePath);
+                songitem.Play(this);
             }
             catch
             {

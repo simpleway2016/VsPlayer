@@ -111,7 +111,7 @@
                                     <MenuItem Header="移动到" SubmenuOpened="moveSongMenuOpened_Click">
                                         <MenuItem></MenuItem>
                                     </MenuItem>
-                                    <MenuItem Header="删除曲目" Click="menuDeleteSongItem_Click"></MenuItem>
+                                    <MenuItem Header="删除" Click="menuDeleteSongItem_Click"></MenuItem>
                                 </ContextMenu>
                             </StackPanel.Resources>
                             <Grid Margin="5">
@@ -142,9 +142,9 @@
                                         </ComboBox>
                                     </StackPanel>
 
-                                    <TextBlock Text="曲目路径：" Margin="10,90,0,10" Width="80" HorizontalAlignment="Left"></TextBlock>
+                                    <TextBlock Text="文件路径：" Margin="10,90,0,10" Width="80" HorizontalAlignment="Left"></TextBlock>
                                     <!--更换曲目-->
-                                    <Button Margin="80,90,0,0" ToolTip="点击更换曲目" VerticalAlignment="Top" HorizontalAlignment="Left" Click="ChangeSong_Click">
+                                    <Button Margin="80,90,0,0" ToolTip="点击更换文件" VerticalAlignment="Top" HorizontalAlignment="Left" Click="ChangeSong_Click">
                                         <Button.Template>
                                             <ControlTemplate>
                                                 <TextBlock TextDecorations="Underline" Foreground="#880fcd" Cursor="Hand" Text="{Binding FilePath}">
@@ -186,6 +186,7 @@
                             <Border.Resources>
                                 <ContextMenu x:Key="contextMenu">
                                     <MenuItem Header="添加纯背景环节" Click="menuAddNoSong_Click"></MenuItem>
+                                    <MenuItem Header="添加文件播放环节..." Click="menuAddFile_Click"></MenuItem>
                                     <MenuItem Header="添加曲目..." Click="menuAddSong_Click"></MenuItem>
                                     <Separator></Separator>
                                     <MenuItem Header="移动到" SubmenuOpened="moveProgrammeMenuOpened_Click">
