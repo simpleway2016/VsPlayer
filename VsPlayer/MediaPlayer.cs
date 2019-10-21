@@ -359,7 +359,14 @@ namespace VsPlayer
                     {
                         nowVolume -= eachVolume;
                         this.Invoke(new ThreadStart(() => {
-                            _mediaBuilder.Volumn = nowVolume;
+                            try
+                            {
+                                _mediaBuilder.Volumn = nowVolume;
+                            }
+                            catch
+                            {
+
+                            }
                         }));
                         Thread.Sleep(10);
                     }
@@ -416,50 +423,67 @@ namespace VsPlayer
                 return 0;
             }
         }
+        public delegate void OnVolumeChangedHandler(object sender, int volume);
+        public event OnVolumeChangedHandler VolumeChanged;
         public void SetVolume(int volume)
         {
-            if (this.Status == PlayerStatus.Running)
+            if (_mediaBuilder != null)
             {
-                var originalVolume = _mediaBuilder.Volumn;
-                var nowVolume = originalVolume;
-                var targetVolume = volume;
-                var eachVolume = -100;
-                if (targetVolume > nowVolume)
-                    eachVolume = 100;
-
-                for(int i = 0; i < 10000; i ++)
+                try
                 {
-                    Thread.Sleep(10);
-                    nowVolume += eachVolume;
-                    if(originalVolume < targetVolume && nowVolume >= targetVolume)
-                    {
-                        nowVolume = targetVolume;
-                        _mediaBuilder.Volumn = nowVolume;
-                        break;
-                    }
-                    else if (originalVolume > targetVolume && nowVolume <= targetVolume)
-                    {
-                        nowVolume = targetVolume;
-                        _mediaBuilder.Volumn = nowVolume;
-                        break;
-                    }
-                    _mediaBuilder.Volumn = nowVolume;
+                    _mediaBuilder.Volumn = volume;
+                }
+                catch
+                {
+
+                }
+                if(VolumeChanged != null)
+                {
+                    VolumeChanged(this, volume);
                 }
             }
-            else
-            {
-                if (_mediaBuilder != null)
-                {
-                    try
-                    {
-                        _mediaBuilder.Volumn = volume;
-                    }
-                    catch
-                    {
+            //if (this.Status == PlayerStatus.Running)
+            //{
+            //    var originalVolume = _mediaBuilder.Volumn;
+            //    var nowVolume = originalVolume;
+            //    var targetVolume = volume;
+            //    var eachVolume = -100;
+            //    if (targetVolume > nowVolume)
+            //        eachVolume = 100;
 
-                    }
-                }
-            }
+            //    for(int i = 0; i < 10000; i ++)
+            //    {
+            //        Thread.Sleep(10);
+            //        nowVolume += eachVolume;
+            //        if(originalVolume < targetVolume && nowVolume >= targetVolume)
+            //        {
+            //            nowVolume = targetVolume;
+            //            _mediaBuilder.Volumn = nowVolume;
+            //            break;
+            //        }
+            //        else if (originalVolume > targetVolume && nowVolume <= targetVolume)
+            //        {
+            //            nowVolume = targetVolume;
+            //            _mediaBuilder.Volumn = nowVolume;
+            //            break;
+            //        }
+            //        _mediaBuilder.Volumn = nowVolume;
+            //    }
+            //}
+            //else
+            //{
+            //    if (_mediaBuilder != null)
+            //    {
+            //        try
+            //        {
+            //            _mediaBuilder.Volumn = volume;
+            //        }
+            //        catch
+            //        {
+
+            //        }
+            //    }
+            //}
         }
 
         public double GetDuration()

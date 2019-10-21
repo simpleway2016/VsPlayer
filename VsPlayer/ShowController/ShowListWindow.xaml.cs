@@ -15,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using VsPlayer.ShowController.Models;
 
 namespace VsPlayer.ShowController
 {
@@ -28,7 +29,7 @@ namespace VsPlayer.ShowController
             public Models.ProgrammeCollection ProgrammeList { get; set; }
             public ObservableCollection<Models.BgPicture> BgPicList { get; set; }
 
-
+            public int[] Volumes { get; set; }
             bool _IsPicStretchMode;
             /// <summary>
             /// 拉伸背景图
@@ -76,6 +77,24 @@ namespace VsPlayer.ShowController
             {
                 DataModel = Newtonsoft.Json.JsonConvert.DeserializeObject<MyModel> (System.IO.File.ReadAllText(path));
 
+                path = $"{AppDomain.CurrentDomain.BaseDirectory}data_vol.txt";
+                try
+                {
+                    var othermodel = Newtonsoft.Json.JsonConvert.DeserializeObject<MyModel>(System.IO.File.ReadAllText(path));
+                    foreach( var p in othermodel.ProgrammeList )
+                    {
+                        foreach( var item in p.Items )
+                        {
+                            var findeditem = getItem(item.Id);
+                            if (findeditem != null)
+                                findeditem.Volume = item.Volume;
+                        }
+                    }
+                }
+                catch
+                {
+
+                }
             }
             else
             {
@@ -110,6 +129,7 @@ namespace VsPlayer.ShowController
             VideoForm.Player.ProgressChanged += Player_ProgressChanged;
             VideoForm.Player.PlayCompleted += Player_PlayCompleted;
             VideoForm.Player.Stopped += Player_Stopped;
+            VideoForm.Player.VolumeChanged += Player_VolumeChanged;
            VideoForm.Show();
 
             playerArea.DataContext = DataModel.PlayerInfo;
@@ -122,7 +142,49 @@ namespace VsPlayer.ShowController
             }
         }
 
-     
+        SongItem getItem(string id)
+        {
+            foreach (var p in this.DataModel.ProgrammeList)
+            {
+                foreach (var item in p.Items)
+                {
+                    if (item.Id == id)
+                        return item;
+                }
+            }
+            return null;
+        }
+        public SongItem GetActiveItem()
+        {
+            foreach (var p in this.DataModel.ProgrammeList)
+            {
+                foreach (var item in p.Items)
+                {
+                    if (item.IsActivedItem)
+                        return item;
+                }
+            }
+            return null;
+        }
+
+        public bool IsSettingVolumeByCode = false;
+        private void Player_VolumeChanged(object sender, int volume)
+        {
+            if (IsSettingVolumeByCode)
+                return;
+
+            foreach( var pro in this.DataModel.ProgrammeList )
+            {
+                foreach( var item in pro.Items )
+                {
+                    if(item.IsActivedItem && item.IsPlaying)
+                    {
+                        item.Volume = volume;
+                    }
+                }
+            }
+        }
+
         private void Player_Stopped(object sender, EventArgs e)
         {
             VideoForm.Player.Visible = false;
@@ -159,6 +221,14 @@ namespace VsPlayer.ShowController
 
         protected override void OnClosing(CancelEventArgs e)
         {
+            foreach (var p in this.DataModel.ProgrammeList)
+            {
+                foreach (var item in p.Items)
+                {
+                    item.Volume = null;
+                }
+            }
+
             var path = $"{AppDomain.CurrentDomain.BaseDirectory}data.txt";
             if (File.Exists(path))
                 File.Delete(path);
@@ -564,6 +634,16 @@ namespace VsPlayer.ShowController
                     programme.IsShowedDetail = true;
                 }
             }
+        }
+
+        private void btnSaveVolume_Click(object sender, RoutedEventArgs e)
+        {
+            var path = $"{AppDomain.CurrentDomain.BaseDirectory}data_vol.txt";
+            if (File.Exists(path))
+                File.Delete(path);
+
+            System.IO.File.WriteAllText(path, Newtonsoft.Json.JsonConvert.SerializeObject(DataModel));
+            MessageBox.Show("成功保存音量记录");
         }
     }
 }

@@ -63,7 +63,8 @@ namespace VsPlayer.ShowController.Controls
         {
             if( _downPoint != null )
             {
-                //MediaPlayer.instance._mediaBuilder.Volumn = getVolume(e.GetPosition(_bgFLAG));
+                Point point = e.GetPosition(_bgFLAG);
+                _playerInfo.Volume = getVolume(e.GetPosition(_bgFLAG));
             }
             base.OnMouseMove(e);
         }
@@ -74,8 +75,8 @@ namespace VsPlayer.ShowController.Controls
             {
                 this.ReleaseMouseCapture();
                 _downPoint = null;
-                Point point = e.GetPosition(_bgFLAG);
-                _playerInfo.Volume = getVolume(e.GetPosition(_bgFLAG));
+                //Point point = e.GetPosition(_bgFLAG);
+                //_playerInfo.Volume = getVolume(e.GetPosition(_bgFLAG));
             }
                 base.OnMouseUp(e);
         }

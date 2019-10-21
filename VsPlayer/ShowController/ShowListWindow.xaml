@@ -8,7 +8,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="VsPlayer - Program Control Center" Height="400" Width="800">
     <Window.Resources>
-        
+
         <ControlTemplate x:Key="listBoxTemplate" TargetType="ListBox">
             <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Auto" CanContentScroll="False">
                 <StackPanel Orientation="Vertical" IsItemsHost="True"></StackPanel>
@@ -196,7 +196,7 @@
                                     <MenuItem Header="删除节目..." Click="menuDeleteProgramme_Click"></MenuItem>
                                 </ContextMenu>
                             </Border.Resources>
-                            <StackPanel Orientation="Vertical">                                
+                            <StackPanel Orientation="Vertical">
                                 <Grid Height="30" x:Name="titleArea" Background="#ccc">
                                     <Button x:Name="btnPlay" Click="btnProgrammePlay_Click" Margin="4,0,0,0" Style="{DynamicResource playBtnStyle}" HorizontalAlignment="Left"></Button>
                                     <Button x:Name="downBtn" Click="btnShowProgammeDetail_Click" Margin="0,0,5,0" Style="{DynamicResource downBtnStyle}" HorizontalAlignment="Right"></Button>
@@ -260,13 +260,13 @@
             </Setter>
         </Style>
     </Window.Resources>
-     <Window.ContextMenu>
-            <ContextMenu>
-                <MenuItem Header="拉伸背景图" IsCheckable="True" IsChecked="{Binding IsPicStretchMode}"></MenuItem>
-            </ContextMenu>
-        </Window.ContextMenu>
+    <Window.ContextMenu>
+        <ContextMenu>
+            <MenuItem Header="拉伸背景图" IsCheckable="True" IsChecked="{Binding IsPicStretchMode}"></MenuItem>
+        </ContextMenu>
+    </Window.ContextMenu>
     <Grid>
-       
+
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
@@ -347,6 +347,7 @@
             <TextBlock Text="/" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="121,27,0,0"></TextBlock>
             <TextBlock Text="{Binding TotalSecondString}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="134,28,0,0"></TextBlock>
             <Image x:Name="btnSetting" SnapsToDevicePixels="True" MouseDown="btnSelectScreen_MouseDown" Width="16" Cursor="Hand" Height="16" Source="/images/screen.png" HorizontalAlignment="Right" Margin="0,22,16,7"></Image>
+            <Button Content="保存所有曲目音量记录" HorizontalAlignment="Left" Margin="515,28,0,0" VerticalAlignment="Top" Width="138" Click="btnSaveVolume_Click"/>
         </Grid>
         <!--#endregion-->
     </Grid>

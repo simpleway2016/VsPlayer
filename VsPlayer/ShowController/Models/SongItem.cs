@@ -10,6 +10,21 @@ namespace VsPlayer.ShowController.Models
 {
     public class SongItem : Way.Lib.DataModel
     {
+
+        private string _Id;
+        public string Id
+        {
+            get => _Id;
+            set
+            {
+                if (_Id != value)
+                {
+                    _Id = value;
+                    this.OnPropertyChanged("Id", null, null);
+                }
+            }
+        }
+
         string _Name;
         public string Name
         {
@@ -175,6 +190,21 @@ namespace VsPlayer.ShowController.Models
             }
         }
 
+
+        private int? _Volume;
+        public int? Volume
+        {
+            get => _Volume;
+            set
+            {
+                if (_Volume != value)
+                {
+                    _Volume = value;
+                    this.OnPropertyChanged("Volume", null, null);
+                }
+            }
+        }
+
         bool _IsActivedItem;
         [Newtonsoft.Json.JsonIgnore]
         public bool IsActivedItem
@@ -187,7 +217,14 @@ namespace VsPlayer.ShowController.Models
             {
                 if (_IsActivedItem != value)
                 {
+                    if (value)
+                    {
+                        var olditem = ShowListWindow.instance.GetActiveItem();
+                        if (olditem != null && olditem != this)
+                            olditem.IsActivedItem = false;
+                       }
                     _IsActivedItem = value;
+                    
                     this.OnPropertyChanged("IsActivedItem", null, value);
                 }
             }
@@ -230,6 +267,7 @@ namespace VsPlayer.ShowController.Models
         }
         public SongItem()
         {
+            this.Id = Guid.NewGuid().ToString("N");
             MediaPlayer.instance.StatusChanged += Instance_StatusChanged;
         }
         System.Diagnostics.Process _OpenFileProcess;
@@ -238,6 +276,7 @@ namespace VsPlayer.ShowController.Models
             this.IsActivedItem = true;
             if (_isOpenFile)
             {
+                player.Stop();
                 if (_OpenFileProcess == null)
                 {
                     _OpenFileProcess = System.Diagnostics.Process.Start(this.FilePath);
@@ -248,6 +287,12 @@ namespace VsPlayer.ShowController.Models
             }
             else
             {
+               if(this.Volume != null)
+                {
+                    ShowListWindow.instance.IsSettingVolumeByCode = true;
+                    ShowListWindow.instance.DataModel.PlayerInfo.Volume = this.Volume.Value;
+                    ShowListWindow.instance.IsSettingVolumeByCode = false;
+                }
                 player.Open(this.FilePath);
             }
         }
