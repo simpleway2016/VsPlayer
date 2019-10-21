@@ -61,6 +61,7 @@ namespace VsPlayer.ShowController
                 }
             }
             public Models.PlayerInfo PlayerInfo { get; set; }
+
         }
         public static ShowListWindow instance;
         public MyModel DataModel;
@@ -308,11 +309,25 @@ namespace VsPlayer.ShowController
             {
                 VideoForm.Player.Play();
             }
+            else if (VideoForm.Player.Status == PlayerStatus.Stopped)
+            {
+                
+            }
         }
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
-            VideoForm.Player.Stop();
+            foreach( var programme in this.DataModel.ProgrammeList )
+            {
+                foreach( var item in programme.Items )
+                {
+                    if(item.IsActivedItem)
+                    {
+                        item.Stop(VideoForm.Player);
+                        break;
+                    }
+                }
+            }
         }
 
         private void VolumeMenu_ContextMenuOpened(object sender, RoutedEventArgs e)

@@ -169,6 +169,7 @@ namespace VsPlayer.ShowController.Models
                 if (_IsPlaying != value)
                 {
                     _IsPlaying = value;
+                    ShowListWindow.instance.DataModel.ProgrammeList.FirstOrDefault(m => m.Items.Contains(this)).IsPlaying = value;
                     this.OnPropertyChanged("IsPlaying", null, value);
                 }
             }
@@ -234,6 +235,7 @@ namespace VsPlayer.ShowController.Models
         System.Diagnostics.Process _OpenFileProcess;
        public virtual void Play(MediaPlayer player)
         {
+            this.IsActivedItem = true;
             if (_isOpenFile)
             {
                 if (_OpenFileProcess == null)
@@ -242,7 +244,6 @@ namespace VsPlayer.ShowController.Models
                     _OpenFileProcess.EnableRaisingEvents = true;
                     _OpenFileProcess.Exited += _OpenFileProcess_Exited;
                     this.IsPlaying = true;
-                    ShowListWindow.instance.DataModel.ProgrammeList.FirstOrDefault(m => m.Items.Contains(this)).IsPlaying = true;
                 }
             }
             else
@@ -254,11 +255,19 @@ namespace VsPlayer.ShowController.Models
         private void _OpenFileProcess_Exited(object sender, EventArgs e)
         {
             _OpenFileProcess = null;
+            this.IsPlaying = false;
+            
             this.OnPlayCompleted();
         }
 
         public virtual void Stop(MediaPlayer player)
         {
+            if(string.IsNullOrEmpty(this.FilePath))
+            {
+                player.Status = PlayerStatus.Stopped;
+                this.OnPlayCompleted();
+                return;
+            }
             if (_isOpenFile)
             {
                 if (_OpenFileProcess != null)
@@ -266,8 +275,7 @@ namespace VsPlayer.ShowController.Models
                     ShowListWindow.instance.DataModel.ProgrammeList.FirstOrDefault(m => m.Items.Contains(this)).IsPlaying = false;
                     _OpenFileProcess.Kill();
                     _OpenFileProcess = null;
-                    this.IsPlaying = false;
-              
+                    player.Status = PlayerStatus.Stopped;
                 }
             }
             else

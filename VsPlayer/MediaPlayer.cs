@@ -317,7 +317,6 @@ namespace VsPlayer
             songitem.OnBeginPlay();
             if(songitem.FilePath == null)
             {
-                songitem.Stop(this);
                 this.Status = PlayerStatus.Running;
                 return;
             }
